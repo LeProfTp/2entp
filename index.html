@@ -1,0 +1,1378 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ECL · Session 2 · Von der Idee zum Produkt</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   RESET & VARIABLES
+   ============================================================ */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#060C18;--surface:#0A1422;--card:#0E1A2C;--card-hi:#132133;
+  --border:rgba(255,255,255,0.07);--border-md:rgba(255,255,255,0.12);
+  --text:#D6E4F5;--dim:#647EA0;--muted:#304055;
+  --primary:#0DD6D6;--amber:#F5A623;--green:#34D399;--rose:#F87171;
+  --c0:#6366F1;--c1:#0DD6D6;--c2:#A78BFA;--c3:#FBBF24;
+  --c4:#F87171;--c5:#F472B6;--c6:#34D399;
+  --r:14px;--r-sm:9px;--r-xs:6px;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;
+  font-size:14.5px;line-height:1.65;min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;
+  background-image:linear-gradient(rgba(13,214,214,.025) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(13,214,214,.025) 1px,transparent 1px);
+  background-size:56px 56px;pointer-events:none;z-index:0}
+body::after{content:'';position:fixed;top:25%;left:50%;
+  transform:translate(-50%,-50%);width:900px;height:600px;
+  background:radial-gradient(ellipse,rgba(13,214,214,.05) 0%,transparent 65%);
+  pointer-events:none;z-index:0}
+#app-team{position:relative;z-index:1}
+
+/* ============================================================
+   STICKY HEADER
+   ============================================================ */
+.header{position:sticky;top:0;z-index:100;
+  background:rgba(6,12,24,0.9);backdrop-filter:blur(24px) saturate(1.4);
+  border-bottom:1px solid var(--border)}
+.header-row{display:flex;align-items:center;gap:12px;padding:10px 24px;flex-wrap:wrap}
+.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:10.5px;
+  letter-spacing:.16em;color:var(--primary);text-transform:uppercase;white-space:nowrap;flex-shrink:0}
+.logo span{color:var(--muted)}
+.session-label{font-family:'Syne',sans-serif;font-weight:700;font-size:13.5px;
+  color:var(--text);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.session-label small{color:var(--dim);font-weight:400}
+.team-wrap{display:flex;align-items:center;gap:7px;background:var(--card);
+  border:1px solid var(--border-md);border-radius:var(--r-sm);padding:5px 11px}
+.team-wrap label{font-size:9.5px;text-transform:uppercase;letter-spacing:.12em;
+  color:var(--dim);font-family:'Syne',sans-serif;font-weight:600;white-space:nowrap}
+.team-wrap input{background:none;border:none;outline:none;color:var(--text);
+  font-family:'Syne',sans-serif;font-weight:700;font-size:13px;width:130px}
+.team-wrap input::placeholder{color:var(--muted)}
+.xp-zone{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.xp-stack{display:flex;flex-direction:column;gap:3px}
+.xp-meta{display:flex;justify-content:space-between;font-size:9.5px;
+  text-transform:uppercase;letter-spacing:.1em;color:var(--dim);
+  font-family:'Syne',sans-serif;gap:16px}
+.xp-track{width:148px;height:5px;background:var(--muted);border-radius:3px;overflow:hidden}
+.xp-fill{height:100%;background:linear-gradient(90deg,var(--primary) 0%,#6366F1 100%);
+  border-radius:3px;transition:width .5s cubic-bezier(.25,.8,.25,1);position:relative}
+.xp-fill::after{content:'';position:absolute;right:0;top:-2px;bottom:-2px;
+  width:2px;background:white;border-radius:2px;opacity:.7}
+.lvl-badge{background:linear-gradient(135deg,var(--primary),#6366F1);
+  font-family:'Syne',sans-serif;font-weight:800;font-size:10px;letter-spacing:.04em;
+  color:#fff;padding:4px 9px;border-radius:20px;white-space:nowrap}
+.hdr-btn{background:none;border:1px solid var(--muted);color:var(--dim);
+  padding:4px 11px;border-radius:var(--r-xs);cursor:pointer;font-size:10px;
+  font-family:'Syne',sans-serif;font-weight:600;letter-spacing:.05em;
+  text-transform:uppercase;transition:all .18s;flex-shrink:0;white-space:nowrap}
+.hdr-btn:hover{border-color:var(--dim);color:var(--text)}
+.hdr-btn.accent{border-color:var(--amber);color:var(--amber)}
+.hdr-btn.accent:hover{background:rgba(245,166,35,.1)}
+.hdr-btn.green{border-color:var(--green);color:var(--green)}
+.hdr-btn.green:hover{background:rgba(52,211,153,.1)}
+
+/* phase nav */
+.phase-nav{display:flex;gap:5px;padding:7px 24px;overflow-x:auto;scrollbar-width:none}
+.phase-nav::-webkit-scrollbar{display:none}
+.p-pill{display:flex;align-items:center;gap:5px;padding:4px 11px;border-radius:20px;
+  background:var(--card);border:1px solid var(--border);cursor:pointer;
+  transition:all .18s;text-decoration:none;font-size:11.5px;color:var(--dim);
+  font-family:'Syne',sans-serif;font-weight:600;white-space:nowrap}
+.p-pill:hover{background:var(--card-hi);color:var(--text)}
+.p-pill.active{border-color:var(--pc);color:var(--pc);background:color-mix(in srgb,var(--pc) 10%,transparent)}
+.p-pill.done{border-color:var(--pc);color:var(--pc);background:color-mix(in srgb,var(--pc) 15%,transparent)}
+.p-pill .dot{width:5px;height:5px;border-radius:50%;background:currentColor}
+
+/* ============================================================
+   MAIN WRAP
+   ============================================================ */
+.wrap{max-width:860px;margin:0 auto;padding:28px 20px 40px;
+  display:flex;flex-direction:column;gap:18px}
+
+/* stats row */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:15px 18px}
+.stat-v{font-family:'Syne',sans-serif;font-weight:800;font-size:24px;line-height:1;color:var(--text)}
+.stat-v em{font-style:normal;font-size:13px;color:var(--dim);font-weight:400}
+.stat-l{font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;
+  color:var(--dim);font-family:'Syne',sans-serif;font-weight:600;margin-top:4px}
+
+/* feedback banner */
+.fb-banner{display:flex;align-items:center;gap:14px;
+  background:color-mix(in srgb,var(--green) 9%,transparent);
+  border:1px solid color-mix(in srgb,var(--green) 30%,transparent);
+  border-radius:var(--r);padding:14px 20px;
+  font-size:13.5px;color:var(--text)}
+.fb-banner-icon{font-size:24px}
+.fb-banner strong{font-family:'Syne',sans-serif;font-weight:700;color:var(--green)}
+
+/* ============================================================
+   PHASE CARDS
+   ============================================================ */
+.pc{background:var(--card);border:1px solid var(--border);border-radius:var(--r);
+  overflow:hidden;transition:border-color .35s;scroll-margin-top:120px}
+.pc.complete{border-color:color-mix(in srgb,var(--pc) 35%,transparent)}
+.pc.in-progress{border-left:2px solid color-mix(in srgb,var(--pc) 50%,transparent)}
+.ph{display:flex;align-items:center;gap:14px;padding:18px 22px;cursor:pointer;
+  transition:background .18s;position:relative;overflow:hidden;user-select:none}
+.ph:hover{background:rgba(255,255,255,0.02)}
+.ph::before{content:attr(data-num);position:absolute;right:70px;
+  font-family:'Syne',sans-serif;font-weight:800;font-size:72px;
+  color:rgba(255,255,255,.025);line-height:1;pointer-events:none;
+  top:50%;transform:translateY(-50%)}
+.ph-icon{width:44px;height:44px;border-radius:10px;flex-shrink:0;
+  background:color-mix(in srgb,var(--pc) 14%,transparent);
+  border:1px solid color-mix(in srgb,var(--pc) 28%,transparent);
+  display:flex;align-items:center;justify-content:center;font-size:21px}
+.ph-meta{flex:1;min-width:0}
+.ph-label{font-size:9.5px;text-transform:uppercase;letter-spacing:.13em;
+  color:var(--pc);font-family:'Syne',sans-serif;font-weight:600;margin-bottom:1px}
+.ph-title{font-family:'Syne',sans-serif;font-weight:700;font-size:16px;
+  color:var(--text);line-height:1.25}
+.ph-sub{font-size:12px;color:var(--dim);margin-top:2px}
+.ring-wrap{position:relative;width:48px;height:48px;flex-shrink:0}
+.ring-wrap svg{width:48px;height:48px}
+.ring-pct{position:absolute;inset:0;display:flex;align-items:center;
+  justify-content:center;font-family:'Syne',sans-serif;
+  font-weight:700;font-size:10.5px;color:var(--text)}
+.chevron{color:var(--muted);font-size:16px;flex-shrink:0;transition:transform .28s}
+.pc.collapsed .chevron{transform:rotate(-90deg)}
+.done-badge{display:none;align-items:center;gap:7px;margin:0 22px 10px;
+  padding:7px 13px;background:color-mix(in srgb,var(--pc) 9%,transparent);
+  border:1px solid color-mix(in srgb,var(--pc) 28%,transparent);border-radius:var(--r-xs);
+  font-family:'Syne',sans-serif;font-weight:700;font-size:11.5px;
+  color:var(--pc);letter-spacing:.04em}
+.done-badge.show{display:flex}
+.ph-div{height:1px;background:var(--border);margin:0 22px 14px}
+.pb{padding:0 22px 18px;display:flex;flex-direction:column;gap:1px}
+.pc.collapsed .pb,.pc.collapsed .done-badge,.pc.collapsed .ph-div{display:none!important}
+
+/* checklist items */
+.ci{padding:9px 10px;border-radius:var(--r-sm);transition:background .14s;cursor:pointer}
+.ci:hover{background:rgba(255,255,255,0.03)}
+.ci-row{display:flex;align-items:flex-start;gap:11px}
+.cb{width:20px;height:20px;border-radius:5px;flex-shrink:0;border:2px solid var(--muted);
+  background:transparent;margin-top:2px;position:relative;transition:all .2s;cursor:pointer}
+.cb.on{border-color:var(--pc);background:var(--pc)}
+.cb.on::after{content:'';position:absolute;left:3.5px;top:.5px;width:8px;height:11px;
+  border:2.5px solid white;border-top:none;border-left:none;transform:rotate(40deg)}
+@keyframes cbPop{0%,100%{transform:scale(1)}40%{transform:scale(1.35)}70%{transform:scale(.9)}}
+.cb.pop{animation:cbPop .3s ease}
+.ci-txt{font-size:14px;color:var(--text);transition:all .28s;line-height:1.55;flex:1}
+.ci.done .ci-txt{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--dim)}
+.tip-btn{background:none;border:none;cursor:pointer;color:var(--muted);font-size:12px;
+  padding:2px 4px;border-radius:4px;transition:all .18s;flex-shrink:0;margin-top:3px;line-height:1}
+.tip-btn:hover{color:var(--primary);background:rgba(13,214,214,.1)}
+.tip-box{display:none;margin:6px 0 2px 31px;font-size:12.5px;color:var(--dim);
+  background:rgba(13,214,214,.055);border-left:2px solid var(--primary);
+  padding:6px 10px;border-radius:0 var(--r-xs) var(--r-xs) 0;font-style:italic;line-height:1.5}
+.tip-box.open{display:block}
+
+/* ============================================================
+   ASSIGNMENT SECTIONS
+   ============================================================ */
+.as-section{margin:18px 0 4px;background:color-mix(in srgb,var(--amber) 5%,transparent);
+  border:1px solid color-mix(in srgb,var(--amber) 20%,transparent);
+  border-radius:var(--r-sm);overflow:hidden}
+.as-section.wa-complete{background:color-mix(in srgb,var(--green) 5%,transparent);
+  border-color:color-mix(in srgb,var(--green) 22%,transparent)}
+.as-head{display:flex;align-items:center;gap:10px;padding:11px 16px;cursor:pointer;user-select:none}
+.as-head:hover{background:rgba(255,255,255,.02)}
+.as-badge{font-family:'Syne',sans-serif;font-weight:800;font-size:9.5px;
+  letter-spacing:.15em;text-transform:uppercase;padding:3px 8px;border-radius:20px;
+  background:color-mix(in srgb,var(--amber) 18%,transparent);color:var(--amber);flex-shrink:0}
+.as-section.wa-complete .as-badge{background:color-mix(in srgb,var(--green) 18%,transparent);color:var(--green)}
+.as-title{font-family:'Syne',sans-serif;font-weight:700;font-size:13.5px;color:var(--text);flex:1}
+.as-prog{font-size:10.5px;color:var(--dim);font-family:'Syne',sans-serif;font-weight:600;flex-shrink:0}
+.as-chevron{color:var(--muted);font-size:14px;transition:transform .25s;flex-shrink:0}
+.as-section.collapsed .as-chevron{transform:rotate(-90deg)}
+.as-body{padding:0 16px 16px;display:flex;flex-direction:column;gap:14px}
+.as-section.collapsed .as-body{display:none}
+.as-desc{font-size:12.5px;color:var(--dim);font-style:italic;
+  padding:0 0 2px;border-bottom:1px solid var(--border);margin-bottom:2px}
+.as-field{}
+.as-label{font-size:11.5px;font-weight:600;color:var(--text);display:block;margin-bottom:5px}
+.as-label .req{color:var(--amber);margin-left:2px}
+.as-hint{font-size:11px;color:var(--dim);margin-bottom:6px;font-style:italic}
+.as-input,.as-textarea{width:100%;background:rgba(0,0,0,.25);
+  border:1px solid var(--border-md);border-radius:var(--r-xs);
+  color:var(--text);font-family:'DM Sans',sans-serif;font-size:13.5px;
+  padding:9px 13px;outline:none;transition:border-color .18s,background .18s;resize:vertical}
+.as-input:focus,.as-textarea:focus{border-color:var(--amber);background:rgba(0,0,0,.35)}
+.as-section.wa-complete .as-input:focus,.as-section.wa-complete .as-textarea:focus{border-color:var(--green)}
+.as-textarea{min-height:72px;line-height:1.55}
+.as-char{font-size:10px;color:var(--muted);text-align:right;margin-top:3px}
+.as-char.ok{color:var(--green)}
+
+/* prof feedback in team view */
+.pf-box{display:flex;gap:10px;background:color-mix(in srgb,var(--green) 8%,transparent);
+  border:1px solid color-mix(in srgb,var(--green) 28%,transparent);
+  border-radius:var(--r-xs);padding:10px 13px;margin-top:8px}
+.pf-icon{font-size:18px;flex-shrink:0;line-height:1.3}
+.pf-content{}
+.pf-label{font-size:9.5px;text-transform:uppercase;letter-spacing:.1em;
+  color:var(--green);font-family:'Syne',sans-serif;font-weight:700;margin-bottom:3px}
+.pf-text{font-size:13px;color:var(--text);line-height:1.6}
+
+/* submission area */
+.submit-area{background:var(--card);border:1px solid var(--border-md);
+  border-radius:var(--r);padding:24px 28px}
+.submit-title{font-family:'Syne',sans-serif;font-weight:800;font-size:18px;
+  color:var(--text);margin-bottom:6px}
+.submit-sub{font-size:13px;color:var(--dim);margin-bottom:20px;line-height:1.6}
+.submit-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:22px}
+.sg-item{background:rgba(0,0,0,.2);border:1px solid var(--border);
+  border-radius:var(--r-sm);padding:12px 16px}
+.sg-v{font-family:'Syne',sans-serif;font-weight:800;font-size:22px;line-height:1}
+.sg-v.green{color:var(--green)}
+.sg-v.amber{color:var(--amber)}
+.sg-l{font-size:10.5px;text-transform:uppercase;letter-spacing:.09em;
+  color:var(--dim);font-family:'Syne',sans-serif;margin-top:3px}
+.submit-btns{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.btn{padding:10px 20px;border-radius:var(--r-xs);border:none;cursor:pointer;
+  font-family:'Syne',sans-serif;font-weight:700;font-size:13px;
+  letter-spacing:.04em;transition:all .2s;display:flex;align-items:center;gap:7px}
+.btn-primary{background:linear-gradient(135deg,var(--amber),#e8921a);color:#111}
+.btn-primary:hover{opacity:.9;transform:translateY(-1px)}
+.btn-secondary{background:var(--card-hi);border:1px solid var(--border-md);color:var(--text)}
+.btn-secondary:hover{border-color:var(--dim)}
+.btn-ghost{background:none;border:1px solid var(--muted);color:var(--dim)}
+.btn-ghost:hover{border-color:var(--dim);color:var(--text)}
+.btn-green{background:linear-gradient(135deg,var(--green),#16a085);color:#111}
+.btn-green:hover{opacity:.9;transform:translateY(-1px)}
+.submit-note{font-size:11.5px;color:var(--muted);margin-top:14px;line-height:1.6}
+
+/* footer */
+.foot{max-width:860px;margin:0 auto;padding:0 20px 64px}
+.foot-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:22px 26px}
+.foot-ttl{font-family:'Syne',sans-serif;font-weight:700;font-size:11px;
+  text-transform:uppercase;letter-spacing:.13em;color:var(--primary);margin-bottom:18px}
+.learn-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.learn-item{display:flex;gap:11px;font-size:13px;color:var(--dim);line-height:1.55}
+.learn-n{font-family:'Syne',sans-serif;font-weight:800;font-size:22px;
+  color:var(--primary);opacity:.35;line-height:1;flex-shrink:0;padding-top:1px}
+.odoo-note{margin-top:18px;padding-top:16px;border-top:1px solid var(--border);
+  font-size:12px;color:var(--dim);display:flex;align-items:center;gap:9px}
+.odoo-chip{background:color-mix(in srgb,var(--c3) 12%,transparent);
+  border:1px solid color-mix(in srgb,var(--c3) 30%,transparent);
+  color:var(--c3);font-family:'Syne',sans-serif;font-weight:700;
+  font-size:10px;padding:3px 8px;border-radius:20px;white-space:nowrap}
+
+/* ============================================================
+   TOAST & CONFETTI
+   ============================================================ */
+#toasts{position:fixed;bottom:22px;right:20px;z-index:9999;
+  display:flex;flex-direction:column;gap:7px;pointer-events:none}
+.toast{background:rgba(14,26,44,.95);backdrop-filter:blur(16px);
+  border:1px solid var(--border-md);border-left-width:3px;
+  padding:9px 15px;border-radius:var(--r-xs);font-size:13px;
+  color:var(--text);max-width:280px;
+  animation:tIn .28s ease,tOut .28s ease 2.6s forwards}
+.toast.big{font-family:'Syne',sans-serif;font-weight:700;font-size:13.5px}
+@keyframes tIn{from{transform:translateX(16px);opacity:0}to{transform:none;opacity:1}}
+@keyframes tOut{to{transform:translateX(16px);opacity:0}}
+#cc{position:fixed;inset:0;pointer-events:none;z-index:9998}
+
+/* ============================================================
+   PROFESSOR MODE
+   ============================================================ */
+#app-prof{position:relative;z-index:1;min-height:100vh;display:none}
+.prof-header{background:rgba(6,12,24,.92);backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);padding:14px 28px;
+  display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100}
+.prof-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:11px;
+  letter-spacing:.16em;color:var(--amber);text-transform:uppercase}
+.prof-logo span{color:var(--muted)}
+.prof-mode-badge{background:color-mix(in srgb,var(--amber) 15%,transparent);
+  border:1px solid color-mix(in srgb,var(--amber) 35%,transparent);
+  color:var(--amber);font-family:'Syne',sans-serif;font-weight:700;
+  font-size:9.5px;padding:3px 9px;border-radius:20px;letter-spacing:.1em;text-transform:uppercase}
+.prof-wrap{max-width:900px;margin:0 auto;padding:32px 24px 80px;display:flex;flex-direction:column;gap:20px}
+
+/* password gate */
+.prof-gate{max-width:380px;margin:80px auto;background:var(--card);
+  border:1px solid var(--border);border-radius:var(--r);padding:36px}
+.prof-gate h2{font-family:'Syne',sans-serif;font-weight:800;font-size:22px;
+  color:var(--text);margin-bottom:6px}
+.prof-gate p{font-size:13px;color:var(--dim);margin-bottom:24px}
+.prof-gate input{width:100%;background:rgba(0,0,0,.3);border:1px solid var(--border-md);
+  border-radius:var(--r-xs);color:var(--text);font-size:14px;padding:11px 14px;
+  outline:none;transition:border-color .18s;margin-bottom:12px}
+.prof-gate input:focus{border-color:var(--amber)}
+.prof-gate-err{font-size:12px;color:var(--rose);margin-top:6px;min-height:18px}
+
+/* drop zone */
+.drop-zone{border:2px dashed var(--muted);border-radius:var(--r);
+  padding:48px 24px;text-align:center;cursor:pointer;transition:all .25s;
+  background:rgba(0,0,0,.15)}
+.drop-zone:hover,.drop-zone.drag-over{border-color:var(--amber);
+  background:rgba(245,166,35,.04)}
+.drop-zone-icon{font-size:40px;margin-bottom:12px}
+.drop-zone-title{font-family:'Syne',sans-serif;font-weight:700;font-size:17px;
+  color:var(--text);margin-bottom:6px}
+.drop-zone-sub{font-size:13px;color:var(--dim)}
+
+/* review card */
+.rev-header{background:var(--card);border:1px solid var(--border);
+  border-radius:var(--r);padding:22px 26px}
+.rev-team-name{font-family:'Syne',sans-serif;font-weight:800;font-size:24px;color:var(--text)}
+.rev-meta{font-size:12px;color:var(--dim);margin-top:4px}
+.rev-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px}
+.rev-stat{background:rgba(0,0,0,.2);border:1px solid var(--border);
+  border-radius:var(--r-sm);padding:11px 14px}
+.rev-stat-v{font-family:'Syne',sans-serif;font-weight:800;font-size:20px;line-height:1}
+.rev-stat-l{font-size:10px;text-transform:uppercase;letter-spacing:.09em;
+  color:var(--dim);font-family:'Syne',sans-serif;margin-top:2px}
+
+/* review assignment blocks */
+.rev-block{background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+.rev-block-head{padding:14px 22px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:10px}
+.rev-block-icon{font-size:18px}
+.rev-block-title{font-family:'Syne',sans-serif;font-weight:700;font-size:15px;color:var(--text);flex:1}
+.rev-block-body{padding:18px 22px;display:flex;flex-direction:column;gap:16px}
+.rev-field{border-bottom:1px solid var(--border);padding-bottom:14px}
+.rev-field:last-child{border-bottom:none;padding-bottom:0}
+.rev-field-label{font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;
+  color:var(--primary);font-family:'Syne',sans-serif;font-weight:700;margin-bottom:6px}
+.rev-field-value{font-size:14px;color:var(--text);line-height:1.65;
+  background:rgba(0,0,0,.15);border-radius:var(--r-xs);padding:10px 13px;white-space:pre-wrap}
+.rev-field-empty{font-size:13px;color:var(--muted);font-style:italic;
+  padding:8px 0}
+.rev-feedback-label{font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;
+  color:var(--amber);font-family:'Syne',sans-serif;font-weight:700;margin:10px 0 6px}
+.rev-feedback-input{width:100%;background:rgba(245,166,35,.05);
+  border:1px solid color-mix(in srgb,var(--amber) 28%,transparent);
+  border-radius:var(--r-xs);color:var(--text);font-family:'DM Sans',sans-serif;
+  font-size:13.5px;padding:9px 13px;outline:none;resize:vertical;min-height:80px;
+  transition:border-color .18s;line-height:1.55}
+.rev-feedback-input:focus{border-color:var(--amber)}
+
+/* overall feedback */
+.overall-block{background:var(--card);border:1px solid color-mix(in srgb,var(--amber) 25%,transparent);
+  border-radius:var(--r);padding:22px 26px}
+.overall-title{font-family:'Syne',sans-serif;font-weight:800;font-size:16px;
+  color:var(--amber);margin-bottom:16px}
+.overall-row{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:start;margin-bottom:14px}
+.grade-input{background:rgba(0,0,0,.3);border:1px solid color-mix(in srgb,var(--amber) 30%,transparent);
+  border-radius:var(--r-xs);color:var(--text);font-family:'Syne',sans-serif;
+  font-weight:700;font-size:20px;padding:10px 16px;outline:none;width:100px;text-align:center;
+  transition:border-color .18s}
+.grade-input:focus{border-color:var(--amber)}
+.grade-label{font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;
+  color:var(--dim);font-family:'Syne',sans-serif;font-weight:600;margin-top:4px;text-align:center}
+.prof-name-input{width:100%;background:rgba(0,0,0,.3);border:1px solid var(--border-md);
+  border-radius:var(--r-xs);color:var(--text);font-family:'DM Sans',sans-serif;
+  font-size:14px;padding:9px 13px;outline:none;transition:border-color .18s;margin-bottom:14px}
+.prof-name-input:focus{border-color:var(--amber)}
+.prof-name-label{font-size:10.5px;text-transform:uppercase;letter-spacing:.09em;
+  color:var(--dim);font-family:'Syne',sans-serif;font-weight:600;margin-bottom:5px}
+.rev-action-row{display:flex;gap:10px;flex-wrap:wrap}
+
+/* team tabs */
+.team-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.team-tab{display:flex;flex-direction:column;align-items:flex-start;gap:2px;
+  padding:8px 14px;border-radius:var(--r-sm);border:1px solid var(--border);
+  background:var(--card);cursor:pointer;transition:all .18s;font-size:13px;
+  font-family:'Syne',sans-serif;font-weight:600;color:var(--dim);text-align:left}
+.team-tab:hover{background:var(--card-hi);color:var(--text);border-color:var(--border-md)}
+.team-tab.active{border-color:var(--amber);color:var(--amber);
+  background:color-mix(in srgb,var(--amber) 10%,transparent)}
+.prof-toolbar{display:flex;justify-content:space-between;align-items:center;
+  flex-wrap:wrap;gap:12px;margin-bottom:18px;
+  background:var(--card);border:1px solid var(--border);border-radius:var(--r);
+  padding:14px 18px}
+
+/* print */
+@media print{
+  body{background:#fff;color:#111}
+  body::before,body::after,#toasts,#cc{display:none}
+  .header,.phase-nav{display:none}
+}
+@media(max-width:700px){
+  .stats{grid-template-columns:1fr 1fr}
+  .submit-grid{grid-template-columns:1fr}
+  .learn-grid{grid-template-columns:1fr}
+  .xp-track{width:90px}.session-label{display:none}.lvl-badge{display:none}
+  .rev-stats{grid-template-columns:1fr 1fr}
+}
+@media(max-width:460px){
+  .stats{grid-template-columns:1fr}
+  .header-row{gap:8px}.team-wrap input{width:90px}
+  .overall-row{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     TEAM MODE (default)
+     ============================================================ -->
+<div id="app-team">
+  <header class="header" id="hdr"></header>
+  <div class="wrap" id="main"></div>
+  <div class="foot">
+    <div class="foot-card">
+      <div class="foot-ttl">🎓 Key Learnings · Session 2</div>
+      <div class="learn-grid">
+        <div class="learn-item"><div class="learn-n">01</div><div>KI ist Arbeitsmedium, kein Ersatz fürs Denken – sinnvoll, wenn Teams Steuerung und Qualitätsprüfung übernehmen.</div></div>
+        <div class="learn-item"><div class="learn-n">02</div><div>Analyse kommt vor Lösung: Produktideen entstehen aus sauberer Problemklärung, Zielgruppenverständnis und Marktbezug.</div></div>
+        <div class="learn-item"><div class="learn-n">03</div><div>Produktklarheit ist Qualitätskriterium: Name, Nutzen, Zielgruppe, Preislogik und Einheit müssen klar beschrieben sein.</div></div>
+        <div class="learn-item"><div class="learn-n">04</div><div>Operationalisierung prüft Unternehmertum: Beim Übergang zu Odoo zeigt sich, ob eine Idee strukturell tragfähig ist.</div></div>
+      </div>
+      <div class="odoo-note">
+        <div class="odoo-chip">→ Session 3</div>
+        Euer Produktprofil wird in der nächsten Session mit Verena in Odoo als Systemobjekt angelegt. Je klarer eure Angaben jetzt, desto leichter der Übergang.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     PROFESSOR MODE
+     ============================================================ -->
+<div id="app-prof">
+  <header class="prof-header">
+    <div class="prof-logo">ECL <span>·</span> Session 2</div>
+    <div class="prof-mode-badge">🔐 Dozierende-Ansicht</div>
+    <div style="flex:1"></div>
+    <button class="btn btn-ghost" onclick="exitProfMode()" style="font-size:11px;padding:5px 12px">← Team-Ansicht</button>
+  </header>
+  <div class="prof-wrap" id="prof-content"></div>
+</div>
+
+<canvas id="cc"></canvas>
+<div id="toasts"></div>
+
+<script>
+'use strict';
+// ================================================================
+//  CONFIG  ─ hier anpassen, sonst nichts ändern nötig
+// ================================================================
+const PROF_PASSWORD = 'ecl2025';   // ← Mentor-Passwort (URL: ?prof)
+
+// Formspree-Endpoint für direkte Online-Einreichung:
+// 1. Kostenlosen Account auf formspree.io anlegen
+// 2. Neues Formular erstellen → ID kopieren
+// 3. Hier eintragen: 'https://formspree.io/f/DEINE_ID'
+// Leer lassen → nur lokaler Download (kein Upload)
+const SUBMIT_URL = '';
+
+const APP_VER = '2.0';
+const STORE_KEY = 'ecl-s2-v2';
+
+// ================================================================
+//  DATA
+// ================================================================
+const PHASES = [
+  {id:'p0',icon:'🗺️',num:'00',hex:'#6366F1',title:'Recap & Zielsetzung',sub:'Den gemeinsamen Startpunkt setzen',items:[
+    {id:'p0-1',t:'Startups als Systeme verstanden: Wertversprechen, Prozesse, Rollen und Skalierbarkeit bilden ein Ganzes',tip:'Kerngedanke 1 aus Session 1: Ein Startup ist mehr als eine Idee.'},
+    {id:'p0-2',t:'Operatives Denken neben kreativem Denken aktiviert: Wer nur kreativ denkt, baut selten tragfähige Produkte',tip:'Kerngedanke 2: Prozesse zählen früh – nicht erst wenn das Produkt fertig ist.'},
+    {id:'p0-3',t:'Erste Problemfelder, Spannungen und Reibungspunkte aus Session 1 reaktiviert und als Arbeitsgrundlage gesetzt',tip:'Kerngedanke 3: Problemfelder sind da – jetzt werden sie zu konkreten Produktideen.'},
+    {id:'p0-4',t:'Leitfrage verankert: „Wie entwickeln wir aus einem Problem ein überzeugendes und umsetzbares Produkt?"',tip:'Diese Frage strukturiert alle vier Blöcke der heutigen Session.'},
+    {id:'p0-5',t:'Session-Ziel klar: Am Ende steht ein analysiertes, pitchbares und Odoo-fähiges Produktprofil',tip:'Nicht maximale Kreativität, sondern maximale Klarheit ist das Ziel.'},
+  ]},
+  {id:'p1',icon:'🤖',num:'01',hex:'#0DD6D6',title:'AI als Team führen',sub:'Management statt bloßem Prompting',items:[
+    {id:'p1-1',t:'Perspektivwechsel vollzogen: AI ist ein steuerbares Team aus virtuellen Mitarbeitenden – 78 % der Unternehmen nutzen AI',tip:'Rollen zuweisen, Kontext geben, Ziele klären, Qualität prüfen – wie in realen Teams.'},
+    {id:'p1-2',t:'Management Move 1 – Aufgaben definieren: Präzise formuliert, welches Problem AI bearbeitet und welche Rolle sie dabei übernimmt',tip:'Unklare Aufgaben erzeugen breite, generische und kaum brauchbare Outputs.'},
+    {id:'p1-3',t:'Management Move 2 – Ziele setzen: Vorgegeben, worauf der Output hinauslaufen soll (Idee, Analyse, Struktur, Entscheidung)',tip:'Erst mit einem klaren Ziel wird AI zu einem gerichteten Arbeitsbeitrag.'},
+    {id:'p1-4',t:'Management Move 3 – Ergebnisse bewerten: Output kritisch auf Relevanz, Verständlichkeit und Anschlussfähigkeit geprüft',tip:'Ohne Bewertung bleibt AI ein Antwortgenerator – mit Bewertung wird sie produktive Unterstützung.'},
+    {id:'p1-5',t:'Kernkompetenz 1 – Scope definieren: Kontext, Zielgruppe, Problemraum und erwartetes Ergebnis klar sichtbar gemacht',tip:'Praxisfrage: Was soll die AI leisten – und was ausdrücklich nicht?'},
+    {id:'p1-6',t:'Kernkompetenz 2 – Qualität bewerten: Relevanz, Plausibilität und Anschlussfähigkeit des Outputs aktiv geprüft',tip:'Praxisfrage: Ist die Antwort wirklich passend – oder nur sprachlich glatt?'},
+    {id:'p1-7',t:'Kernkompetenz 3 – Iteration steuern: Schwächen erkannt, Folgefrage gestellt, verbesserte Version erzeugt',tip:'Praxisfrage: Welche Präzisierung bringt euch zum wirklich hilfreichen Ergebnis?'},
+    {id:'p1-8',t:'Prompt-Bausteine angewendet: Rolle + Kontext + Aufgabe + Outputformat gezielt eingesetzt',tip:'Wenn diese vier Bausteine zusammenkommen, wird AI vom Antwortgenerator zum Arbeitsinstrument.'},
+  ]},
+  {id:'p2',icon:'💡',num:'02',hex:'#A78BFA',title:'Ideation Sprint',sub:'Von vielen Optionen zur Fokusidee',items:[
+    {id:'p2-1',t:'Ideation-Prompt ausgeführt: 5 skalierbare Produktideen für die Zielgruppe generiert – je mit Problem, Lösung und Skalierbarkeitslogik',tip:'Ziel: Erst Breite erzeugen, nicht sofort festlegen.'},
+    {id:'p2-2',t:'Problemanalyse-Prompt ausgeführt: 5 häufige, teure und bislang unzureichend gelöste Probleme der Zielgruppe identifiziert',tip:'Frequenz und Kosten sind starke Signale für echten Bedarf.'},
+    {id:'p2-3',t:'Produktentwicklungs-Prompt ausgeführt: Konkretes Konzept mit Lösungslogik, Zielgruppenfit, Differenzierung und Erlösmodell',tip:'Nicht nur eine Idee, sondern eine Lösung die Zielgruppe und Strukturierung mitdenkt.'},
+    {id:'p2-4',t:'Bewertungs-Prompt ausgeführt: Idee aus Investorensicht auf Marktbedarf, Differenzierung und Business Viability geprüft',tip:'Aufgabe: Die Idee schärfen, nicht zerstören.'},
+    {id:'p2-5',t:'Mindestens 2 Iterationsschleifen: Output erzeugen → kritisch prüfen → Auftrag präzisieren → verbesserte Version',tip:'AI liefert den Startpunkt, nicht die beste Antwort. Wert entsteht in den Schleifen.'},
+    {id:'p2-6',t:'Ideen im Team verglichen: Welche adressiert ein relevantes Problem, ist verständlich und zeigt Entwicklungspotenzial?',tip:'Leitfrage: Welche Idee wirkt zugleich klar, nützlich und weiterbearbeitbar?'},
+    {id:'p2-7',t:'Fokusidee bewusst ausgewählt und Teamentscheidung kurz begründet',tip:'Eine bewusste Teamentscheidung als Ausgangspunkt für alle nächsten Schritte.'},
+    {id:'p2-8',t:'✅ Reality Check: Klares Problem, klare Zielgruppe, klares Angebot, klar erklärbar – alle vier bestanden',tip:'⚠️ Wenn ihr lange ausholen müsst, ist das Produktprofil noch nicht präzise.'},
+  ]},
+  {id:'p3',icon:'🔍',num:'03',hex:'#FBBF24',title:'Situationsanalyse',sub:'Markt · Kunden · Wettbewerb verstehen',items:[
+    {id:'p3-1',t:'Marktanalyse-Prompt: Zielmärkte, Attraktivität, Trends und Wachstumspotenzial der Fokusidee strukturiert eingeschätzt',tip:'Nicht als exakte Prognose, sondern als erste strukturierte Einschätzung von Relevanz.'},
+    {id:'p3-2',t:'Marktbefund verdichtet: Umfeld groß oder dynamisch genug bewertet (Porter: Branchenattraktivität)',tip:'Leitfrage: Gibt es einen ausreichend relevanten Markt?'},
+    {id:'p3-3',t:'Wettbewerbs-Prompt: Relevante Anbieter, Stärken/Schwächen und Differenzierungsfelder systematisch analysiert',tip:'Erst im Vergleich wird sichtbar, ob der Ansatz wirklich unterscheidbar ist.'},
+    {id:'p3-4',t:'Wettbewerbsbefund verdichtet: Glaubwürdige Positionierung gegenüber bestehenden Lösungen in einem Satz formuliert',tip:'Leitfrage: Was macht die Idee anders oder besser?'},
+    {id:'p3-5',t:'Kunden-Prompt: Nutzertypen, Pain Points, Workarounds und Offenheit für Neues beschrieben (Blank: Customer Development)',tip:'Aus abstrakten Gruppen konkrete Nutzertypen machen.'},
+    {id:'p3-6',t:'Kundenbefund verdichtet: Für wen das Problem relevant ist und wie es sich im Alltag zeigt – klar formuliert',tip:'Leitfrage: Wer ist betroffen und warum würde diese Gruppe die Lösung wollen?'},
+    {id:'p3-7',t:'Transfer durchgeführt: Was bestätigen / verwerfen / schärfen wir? – drei klare Aussagen formuliert',tip:'Analyse ist nur dann nützlich, wenn sie zu besseren Produktentscheidungen führt.'},
+  ]},
+  {id:'p4',icon:'🛠️',num:'04',hex:'#F87171',title:'Produktentwicklung',sub:'Aus der Opportunity ein klares Produktprofil',items:[
+    {id:'p4-1',t:'Pflichtfeld 1 – Produktname: Klar, wiedererkennbar und anschlussfähig definiert',tip:'Frage: Wie heißt euer Produkt?'},
+    {id:'p4-2',t:'Pflichtfeld 2 – Kurzbeschreibung: Was ist das Produkt, welches Problem löst es, was ist der Kernnutzen? (1–2 Sätze)',tip:'Test: Versteht eine fremde Person es sofort?'},
+    {id:'p4-3',t:'Pflichtfeld 3 – Zielkund:in: Klar benannte Hauptzielgruppe – nicht "alle", sondern konkret beschreibbar',tip:'Frage: Wer soll das Produkt kaufen oder nutzen?'},
+    {id:'p4-4',t:'Pflichtfeld 4 – Preis: Plausibler Preis oder Preiskorridor festgelegt (Teece: Erlösmodell)',tip:'Frage: Was ist ein realistischer Richtwert?'},
+    {id:'p4-5',t:'Pflichtfeld 5 – Einheit: Bezugsgröße des Preises definiert (Stück, Abo, Lizenz, Stunde, Paket…)',tip:'Frage: Wofür genau zahlt die Zielkund:in?'},
+    {id:'p4-6',t:'Qualitätscheck bestanden: Alle 5 Felder logisch zusammengeführt und Konsistenz bestätigt',tip:'Passen Name, Beschreibung, Zielgruppe, Preis und Einheit stimmig zusammen?'},
+    {id:'p4-7',t:'AI-Prompt: Differenzierung, Skalierbarkeit und Zielgruppenfit des Produktprofils geprüft und verbessert',tip:'Leitfrage: Was macht euer Produkt erkennbar anders? Wo liegen Wachstumshebel?'},
+    {id:'p4-8',t:'Kundenperspektive formuliert: Problem, Kaufmotivation und wahrgenommener Mehrwert aus Kund:innensicht klar beschrieben',tip:'Starker Nutzen ist aus Kund:innensicht greifbar und erlebbar – nicht abstrakt.'},
+  ]},
+  {id:'p5',icon:'🚀',num:'05',hex:'#F472B6',title:'Team Pitch',sub:'Problem → Zielgruppe → Produkt in 60–90 Sek.',items:[
+    {id:'p5-1',t:'Pitch-Baustein 1 – Problem: Das zentrale Problem konkret und spezifisch benannt',tip:'Leitfrage: Welches relevante Problem wollt ihr lösen – und warum ist es bedeutsam?'},
+    {id:'p5-2',t:'Pitch-Baustein 2 – Zielgruppe: Klar benannt, wer dieses Problem besonders stark erlebt',tip:'Eine klar benannte Zielgruppe wirkt stärker als ein diffuser Markt.'},
+    {id:'p5-3',t:'Pitch-Baustein 3 – Produkt: Knapp erklärt – Was ist es, wie funktioniert es, worin liegt der Nutzen?',tip:'Wie löst euer Produkt das Problem besser als Alternativen?'},
+    {id:'p5-4',t:'Pitch auf 60–90 Sekunden verdichtet, Logik geprüft und im Team geprobt',tip:'Nicht der Pitch mit den meisten Infos gewinnt, sondern der mit der klarsten Logik.'},
+    {id:'p5-5',t:'Pitch vor dem Plenum präsentiert – Problem, Zielgruppe und Produkt überzeugend dargestellt',tip:'Das ist der Moment. Zeigt, was ihr in dieser Session erarbeitet habt.'},
+  ]},
+  {id:'p6',icon:'🔄',num:'06',hex:'#34D399',title:'Peer Review & Ausblick',sub:'Feedback geben · Nächste Session vorbereiten',items:[
+    {id:'p6-1',t:'Feedback-Kriterien eingehalten: Konkret · Kritisch · Begründet · Umsetzbar',tip:'Gutes Feedback macht Schwächen sichtbar, ohne unklar oder pauschal zu bleiben.'},
+    {id:'p6-2',t:'Peer-Feedback erhalten, verarbeitet und Konsequenzen für das Produktprofil abgeleitet',tip:'Peer Review ist Arbeitsmaterial – nicht nur Beurteilung.'},
+    {id:'p6-3',t:'Odoo-Bereitschaft hergestellt: Name ✓ · Beschreibung ✓ · Preis ✓ · Einheit ✓ · Zielgruppe ✓ · Konsistenz ✓',tip:'Leitfrage: Könntet ihr euer Produkt schon jetzt in Odoo anlegen?'},
+  ]},
+];
+
+const ASSIGNMENTS = {
+  p2:{
+    icon:'💡',title:'Ideation Sprint – Dokumentation',
+    desc:'Dokumentiert eure drei besten Produktideen und begründet eure Fokusidee mit klarer Teamentscheidung.',
+    fields:[
+      {id:'p2_idea1',label:'Produktidee 1',hint:'Name · beschriebenes Problem · vorgeschlagene Lösung · warum skalierbar?',type:'textarea',rows:3,req:true},
+      {id:'p2_idea2',label:'Produktidee 2',hint:'Name · beschriebenes Problem · vorgeschlagene Lösung · warum skalierbar?',type:'textarea',rows:3,req:true},
+      {id:'p2_idea3',label:'Produktidee 3',hint:'Name · beschriebenes Problem · vorgeschlagene Lösung · warum skalierbar?',type:'textarea',rows:3,req:true},
+      {id:'p2_focus',label:'Fokusidee + Teambegründung',hint:'Welche Idee habt ihr gewählt – und warum? Was spricht konkret für diese Idee? (min. 3 Sätze)',type:'textarea',rows:5,req:true},
+    ]
+  },
+  p3:{
+    icon:'🔍',title:'Situationsanalyse – Befunde',
+    desc:'Haltet eure wichtigsten Analyseergebnisse fest. Diese Befunde bilden die Grundlage für euer Produktprofil.',
+    fields:[
+      {id:'p3_market',label:'Marktbefund',hint:'Größe, Dynamik, relevante Trends und Wachstumspotenzial – ist der Markt attraktiv genug?',type:'textarea',rows:4,req:true},
+      {id:'p3_competition',label:'Wettbewerbsbefund',hint:'Wichtige Anbieter, deren Stärken und Schwächen, eure mögliche Differenzierung',type:'textarea',rows:4,req:true},
+      {id:'p3_customers',label:'Kundenbefund',hint:'Zielkund:innen, konkrete Pain Points, aktuelle Workarounds, Kaufmotivation',type:'textarea',rows:4,req:true},
+      {id:'p3_transfer',label:'Transfer: Was bestätigen / verwerfen / schärfen wir?',hint:'Je eine klare Aussage: 1) Was bleibt tragfähig? 2) Was lassen wir los? 3) Was schärfen wir?',type:'textarea',rows:4,req:true},
+    ]
+  },
+  p4:{
+    icon:'🛠️',title:'Produktprofil – alle Pflichtfelder',
+    desc:'Definiert euer Produkt vollständig. Diese Angaben fließen direkt in die Odoo-Anlage in Session 3 ein.',
+    fields:[
+      {id:'p4_name',label:'Produktname',hint:'Klar, wiedererkennbar, anschlussfähig',type:'input',req:true},
+      {id:'p4_desc',label:'Kurzbeschreibung',hint:'Was ist das Produkt, welches Problem löst es, was ist der Kernnutzen? (1–2 Sätze)',type:'textarea',rows:3,req:true},
+      {id:'p4_target',label:'Zielkund:in',hint:'Klar benennbare Hauptzielgruppe – nicht "alle"',type:'input',req:true},
+      {id:'p4_price',label:'Preis / Preislogik',hint:'Plausibler Richtwert oder Preiskorridor (z.B. 19 € / Monat)',type:'input',req:true},
+      {id:'p4_unit',label:'Einheit',hint:'z.B. pro Stück, pro Monat, pro Lizenz, pro Stunde',type:'input',req:true},
+      {id:'p4_cproblem',label:'Problem aus Kundensicht',hint:'Welches spürbare Problem erlebt die Zielkund:in konkret im Alltag?',type:'textarea',rows:3,req:true},
+      {id:'p4_motivation',label:'Kaufmotivation',hint:'Warum würde die Zielgruppe diese Lösung gegenüber bestehenden Alternativen wählen?',type:'textarea',rows:3,req:true},
+      {id:'p4_value',label:'Wahrgenommener Mehrwert',hint:'Welcher konkrete Nutzen bleibt bei der Zielgruppe hängen und unterscheidet sich klar?',type:'textarea',rows:3,req:true},
+    ]
+  },
+  p5:{
+    icon:'🚀',title:'Pitch – Dokumentierter Text',
+    desc:'Fasst euren 60–90-Sekunden-Pitch schriftlich zusammen. Problem → Zielgruppe → Produkt.',
+    fields:[
+      {id:'p5_problem',label:'Problem',hint:'1–3 Sätze: Welches relevante Problem löst ihr? Warum ist es bedeutsam?',type:'textarea',rows:3,req:true},
+      {id:'p5_target',label:'Zielgruppe',hint:'1–2 Sätze: Für wen und warum gerade diese Gruppe?',type:'textarea',rows:2,req:true},
+      {id:'p5_product',label:'Produkt',hint:'2–4 Sätze: Was ist es, wie funktioniert es grob, worin liegt der zentrale Nutzen?',type:'textarea',rows:4,req:true},
+    ]
+  },
+  p6:{
+    icon:'🔄',title:'Peer-Feedback + Odoo-Bereitschaft',
+    desc:'Dokumentiert euer Peer-Feedback an ein anderes Team und finalisiert alle Angaben für die Odoo-Anlage.',
+    fields:[
+      {id:'p6_feedback',label:'Peer-Feedback (welches Team, welcher Aspekt?)',hint:'Konkret · Kritisch · Begründet · Umsetzbar – alle vier Kriterien erfüllt?',type:'textarea',rows:4,req:true},
+      {id:'p6_odoo_name',label:'Odoo: Produktname (final)',hint:'Eindeutig, bereit für die Systemanlage',type:'input',req:true},
+      {id:'p6_odoo_desc',label:'Odoo: Kurzbeschreibung',hint:'1–2 Sätze, klar und verständlich',type:'textarea',rows:2,req:true},
+      {id:'p6_odoo_price',label:'Odoo: Preis',hint:'Konkreter Wert mit Währung (z.B. 29,00 €)',type:'input',req:true},
+      {id:'p6_odoo_unit',label:'Odoo: Einheit',hint:'z.B. pro Monat, pro Stück, pro Nutzung',type:'input',req:true},
+      {id:'p6_odoo_target',label:'Odoo: Zielkund:in',hint:'Klar benannte Hauptzielgruppe für die Systemanlage',type:'input',req:true},
+    ]
+  }
+};
+
+const LEVELS=[
+  {min:0,label:'Frischer Start',icon:'🌱'},
+  {min:80,label:'Ideen sprudeln',icon:'💭'},
+  {min:200,label:'Analyse läuft',icon:'🔍'},
+  {min:400,label:'Halb durch',icon:'🛠️'},
+  {min:650,label:'Fast am Ziel',icon:'🎯'},
+  {min:850,label:'Launch Ready',icon:'🚀'},
+];
+const QUIPS=['Nice! Weiter so 🔥','Stark! Das zählt.','Yes! Schritt für Schritt.','Läuft! ✨',
+  'Solide Arbeit!','Boom! 💥','Durchgehakt 👊','Guter Move!','Näher ans Ziel 🎯','Pro-Move! 💡'];
+
+// ================================================================
+//  STATE
+// ================================================================
+let S = { teamName:'Euer Team', checked:{}, col:{}, assignments:{}, submittedAt:null };
+
+function storeLoad(){
+  try{const d=localStorage.getItem(STORE_KEY);if(d) S={...S,...JSON.parse(d)};}catch{}
+}
+function storeSave(){
+  try{localStorage.setItem(STORE_KEY,JSON.stringify(S));}catch{}
+}
+let saveTimer;
+function debouncedSave(){clearTimeout(saveTimer);saveTimer=setTimeout(storeSave,400);}
+
+// ================================================================
+//  COMPUTED
+// ================================================================
+const totalChecks=()=>PHASES.reduce((a,p)=>a+p.items.length,0);
+const doneChecks=()=>Object.values(S.checked).filter(Boolean).length;
+const totalWA=()=>Object.keys(ASSIGNMENTS).length;
+const doneWA=()=>Object.keys(ASSIGNMENTS).filter(pid=>{
+  return ASSIGNMENTS[pid].fields.filter(f=>f.req).every(f=>(S.assignments[f.id]||'').trim().length>=5);
+}).length;
+const xp=()=>doneChecks()*10+doneWA()*50;
+const maxXp=()=>totalChecks()*10+totalWA()*50;
+const pct=()=>Math.round((doneChecks()+doneWA())/(totalChecks()+totalWA())*100);
+const level=()=>{let l=LEVELS[0];for(const x of LEVELS)if(xp()>=x.min)l=x;return l;};
+const ppct=(pid)=>{
+  const p=PHASES.find(x=>x.id===pid);
+  const d=p.items.filter(i=>S.checked[i.id]).length;
+  return{d,n:p.items.length,pct:Math.round(d/p.items.length*100)};
+};
+const waDone=(pid)=>{
+  if(!ASSIGNMENTS[pid]) return true;
+  return ASSIGNMENTS[pid].fields.filter(f=>f.req).every(f=>(S.assignments[f.id]||'').trim().length>=5);
+};
+const waProg=(pid)=>{
+  if(!ASSIGNMENTS[pid]) return{done:0,total:0};
+  const total=ASSIGNMENTS[pid].fields.filter(f=>f.req).length;
+  const done=ASSIGNMENTS[pid].fields.filter(f=>f.req&&(S.assignments[f.id]||'').trim().length>=5).length;
+  return{done,total};
+};
+
+// ================================================================
+//  HELPERS
+// ================================================================
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function ring(hex,p,r=20){
+  const c=2*Math.PI*r,off=c*(1-p/100);
+  return `<svg viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="25" cy="25" r="${r}" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="3"/>
+    <circle cx="25" cy="25" r="${r}" fill="none" stroke="${hex}" stroke-width="3"
+      stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${off.toFixed(1)}"
+      stroke-linecap="round" transform="rotate(-90 25 25)"/>
+  </svg>`;
+}
+
+// ================================================================
+//  RENDER HEADER
+// ================================================================
+function renderHdr(){
+  const x=xp(),mx=maxXp(),lv=level(),p=Math.round(x/mx*100);
+  document.getElementById('hdr').innerHTML=`
+    <div class="header-row">
+      <div class="logo">ECL <span>·</span> Petzold</div>
+      <div class="session-label">Session 2 <small>· Von der Idee zum Produkt</small></div>
+      <div style="flex:1"></div>
+      <div class="team-wrap">
+        <label>Team</label>
+        <input id="tn" value="${esc(S.teamName)}" placeholder="Teamname…" maxlength="28">
+      </div>
+      <div class="xp-zone">
+        <div class="xp-stack">
+          <div class="xp-meta"><span>XP</span><span id="xp-lbl">${x} / ${mx}</span></div>
+          <div class="xp-track"><div class="xp-fill" style="width:${p}%"></div></div>
+        </div>
+        <div class="lvl-badge">${lv.icon} ${lv.label}</div>
+      </div>
+      ${S.submittedAt?`<button class="hdr-btn green" id="hdr-submit">✓ Erneut herunterladen</button>`:`<button class="hdr-btn accent" id="hdr-submit">⬇ Abgabe herunterladen</button>`}
+      <button class="hdr-btn" id="rst">Reset</button>
+    </div>
+    <div class="phase-nav">
+      ${PHASES.map(ph=>{
+        const pr=ppct(ph.id);const wa=ASSIGNMENTS[ph.id]?waDone(ph.id):true;
+        const allDone=pr.pct===100&&wa;
+        const cls=pr.d>0||(ASSIGNMENTS[ph.id]&&(S.assignments[ASSIGNMENTS[ph.id].fields[0]?.id]||'')?'active':'')?(allDone?'done':'active'):'';
+        return `<a class="p-pill ${cls}" href="#${ph.id}" style="--pc:${ph.hex}">
+          <span class="dot"></span>${ph.icon} ${ph.num} ${allDone?'✓':(pr.pct+'%')}
+        </a>`;
+      }).join('')}
+    </div>`;
+
+  document.getElementById('tn').addEventListener('input',e=>{
+    S.teamName=e.target.value||'Euer Team'; debouncedSave();
+  });
+  document.getElementById('rst').addEventListener('click',()=>{
+    if(confirm('Fortschritt wirklich zurücksetzen? (Checkliste, Arbeitsaufträge und Feedback werden gelöscht)')){
+      S={teamName:S.teamName,checked:{},col:{},assignments:{},submittedAt:null,feedback:null};
+      storeSave(); renderAll();
+    }
+  });
+  document.getElementById('hdr-submit').addEventListener('click', submitSubmission);
+}
+
+// ================================================================
+//  RENDER MAIN
+// ================================================================
+function renderMain(){
+  const dc=doneChecks(),tc=totalChecks(),dw=doneWA(),tw=totalWA();
+  let html='';
+
+  // Stats
+  html+=`<div class="stats">
+    <div class="stat"><div class="stat-v" style="color:var(--primary)">${dc}<em> / ${tc}</em></div><div class="stat-l">Checks erledigt</div></div>
+    <div class="stat"><div class="stat-v" style="color:var(--amber)">${dw}<em> / ${tw}</em></div><div class="stat-l">Aufträge fertig</div></div>
+    <div class="stat"><div class="stat-v">${tc+tw-dc-dw}</div><div class="stat-l">Noch offen</div></div>
+    <div class="stat"><div class="stat-v" style="color:var(--green)">${pct()}<em>%</em></div><div class="stat-l">Gesamtfortschritt</div></div>
+  </div>`;
+
+  // Phase cards
+  PHASES.forEach(ph=>{
+    const pr=ppct(ph.id);const isCol=!!S.col[ph.id];
+    const isDone=pr.pct===100&&(!ASSIGNMENTS[ph.id]||waDone(ph.id));
+    const inProg=pr.d>0&&!isDone;
+    const wa=ASSIGNMENTS[ph.id];
+    const waP=wa?waProg(ph.id):{done:0,total:0};
+
+    html+=`<div class="pc ${isCol?'collapsed':''} ${isDone?'complete':''} ${inProg?'in-progress':''}"
+      id="${ph.id}" style="--pc:${ph.hex}">
+      <div class="ph" data-pid="${ph.id}" data-num="${ph.num}">
+        <div class="ph-icon">${ph.icon}</div>
+        <div class="ph-meta">
+          <div class="ph-label">Phase ${ph.num}</div>
+          <div class="ph-title">${ph.title}</div>
+          <div class="ph-sub">${ph.sub}${wa?` · <span style="color:${waP.done===waP.total?'var(--green)':'var(--amber)'}">📝 ${waP.done}/${waP.total} Auftr.</span>`:''}</div>
+        </div>
+        <div class="ring-wrap">${ring(ph.hex,pr.pct)}<div class="ring-pct">${pr.pct}%</div></div>
+        <div class="chevron">▾</div>
+      </div>
+      <div class="done-badge ${isDone?'show':''}">✓ Phase ${ph.num} vollständig abgeschlossen</div>
+      <div class="ph-div"></div>
+      <div class="pb">
+        ${ph.items.map(item=>{
+          const chk=!!S.checked[item.id];
+          return `<div class="ci ${chk?'done':''}" data-id="${item.id}">
+            <div class="ci-row">
+              <div class="cb ${chk?'on':''}"></div>
+              <div class="ci-txt">${item.t}</div>
+              ${item.tip?`<button class="tip-btn" title="Tipp">💬</button>`:''}
+            </div>
+            ${item.tip?`<div class="tip-box">${esc(item.tip)}</div>`:''}
+          </div>`;
+        }).join('')}
+        ${wa?renderAssignment(ph.id,wa):''}
+      </div>
+    </div>`;
+  });
+
+  // Submit section
+  html+=renderSubmitSection();
+
+  document.getElementById('main').innerHTML=html;
+  attachEvents();
+}
+
+// ================================================================
+//  RENDER ASSIGNMENT SECTION
+// ================================================================
+function renderAssignment(pid, wa){
+  const col=!!S.col['wa_'+pid];
+  const wp=waProg(pid);const done=waDone(pid);
+
+  let fields=wa.fields.map(f=>{
+    const val=esc(S.assignments[f.id]||'');
+    const len=(S.assignments[f.id]||'').trim().length;
+    const ok=len>=5;
+    let input;
+    if(f.type==='textarea'){
+      input=`<textarea class="as-textarea" data-fid="${f.id}" rows="${f.rows}" placeholder="${f.hint}">${val}</textarea>`;
+    } else {
+      input=`<input class="as-input" type="text" data-fid="${f.id}" placeholder="${f.hint}" value="${val}">`;
+    }
+    return `<div class="as-field">
+      <label class="as-label">${esc(f.label)}${f.req?'<span class="req">*</span>':''}</label>
+      <div class="as-hint">${esc(f.hint)}</div>
+      ${input}
+      <div class="as-char ${ok?'ok':''}">${len} Zeichen${ok?' ✓':' (min. 5)'}</div>
+    </div>`;
+  }).join('');
+
+  return `<div class="as-section ${done?'wa-complete':''} ${col?'collapsed':''}" data-wapid="${pid}">
+    <div class="as-head">
+      <div class="as-badge">📝 Arbeitsauftrag</div>
+      <div class="as-title">${wa.title}</div>
+      <div class="as-prog" style="color:${done?'var(--green)':'var(--amber)'}">${wp.done}/${wp.total}${done?' ✓':''}</div>
+      <div class="as-chevron">▾</div>
+    </div>
+    <div class="as-body">
+      <div class="as-desc">${wa.desc}</div>
+      ${fields}
+    </div>
+  </div>`;
+}
+
+// ================================================================
+//  RENDER SUBMIT SECTION
+// ================================================================
+function renderSubmitSection(){
+  const dc=doneChecks(),tc=totalChecks(),dw=doneWA(),tw=totalWA();
+  const allWaDone=dw===tw;const allChecksDone=dc===tc;
+  const readyColor=allWaDone?'var(--green)':'var(--amber)';
+  const endpoint=SUBMIT_URL?`<div style="font-size:12px;color:var(--green);margin-top:8px">✓ Direkt-Upload aktiv (Formspree)</div>`
+    :`<div style="font-size:11.5px;color:var(--muted);margin-top:8px">Kein Upload-Endpoint konfiguriert → Datei wird lokal heruntergeladen und muss manuell eingereicht werden.</div>`;
+  return `<div class="submit-area" id="submit-section">
+    <div class="submit-title">📤 Abgabe hochladen</div>
+    <div class="submit-sub">
+      Wenn ihr alle Arbeitsaufträge ausgefüllt habt, ladet eure Abgabe hoch.
+      Die Datei enthält alle dokumentierten Arbeitsaufträge, euren Fortschritt und die Teamangaben.
+    </div>
+    <div class="submit-grid">
+      <div class="sg-item">
+        <div class="sg-v" style="color:${readyColor}">${dw}<em style="font-size:13px"> / ${tw}</em></div>
+        <div class="sg-l">Arbeitsaufträge fertig</div>
+      </div>
+      <div class="sg-item">
+        <div class="sg-v green">${dc}<em style="font-size:13px"> / ${tc}</em></div>
+        <div class="sg-l">Checklisten-Punkte</div>
+      </div>
+    </div>
+    <div class="submit-btns">
+      <button class="btn btn-primary" id="btn-upload" ${dw===0?'style="opacity:.6"':''}>
+      ${SUBMIT_URL?'📤 Abgabe hochladen':'⬇ Abgabe herunterladen'}
+      </button>
+    </div>
+    ${endpoint}
+    ${S.submittedAt?`<div class="submit-note" style="margin-top:12px">
+      ✓ Zuletzt eingereicht: ${new Date(S.submittedAt).toLocaleString('de-DE')}
+      ${!SUBMIT_URL?' · <em>Bitte die Datei per Mail oder Kursplattform einreichen.</em>':''}
+    </div>`:''}
+
+  </div>`;
+}
+
+// ================================================================
+//  EVENTS
+// ================================================================
+function attachEvents(){
+  // Checklist toggle
+  document.querySelectorAll('.ci').forEach(el=>{
+    el.addEventListener('click',e=>{if(e.target.closest('.tip-btn'))return;toggleCheck(el.dataset.id);});
+  });
+  // Tips
+  document.querySelectorAll('.tip-btn').forEach(btn=>{
+    btn.addEventListener('click',e=>{
+      e.stopPropagation();
+      btn.closest('.ci').querySelector('.tip-box')?.classList.toggle('open');
+    });
+  });
+  // Phase collapse
+  document.querySelectorAll('.ph').forEach(h=>{
+    h.addEventListener('click',()=>{
+      const pid=h.dataset.pid; S.col[pid]=!S.col[pid]; storeSave(); renderAll();
+    });
+  });
+  // Assignment collapse
+  document.querySelectorAll('.as-head').forEach(h=>{
+    h.addEventListener('click',()=>{
+      const pid=h.closest('.as-section').dataset.wapid;
+      S.col['wa_'+pid]=!S.col['wa_'+pid]; storeSave(); renderMain();
+    });
+  });
+  // Assignment inputs
+  document.querySelectorAll('.as-input,.as-textarea').forEach(el=>{
+    el.addEventListener('input',e=>{
+      const fid=e.target.dataset.fid;
+      S.assignments[fid]=e.target.value;
+      debouncedSave();
+      // live char counter
+      const len=(e.target.value||'').trim().length;
+      const ok=len>=5;
+      const cc=e.target.nextElementSibling;
+      if(cc&&cc.classList.contains('as-char')){
+        cc.textContent=len+' Zeichen'+(ok?' ✓':' (min. 5)');
+        cc.classList.toggle('ok',ok);
+      }
+      // update WA badge live
+      const sec=e.target.closest('.as-section');
+      if(sec){
+        const pid=sec.dataset.wapid;const wp=waProg(pid);const done=waDone(pid);
+        sec.classList.toggle('wa-complete',done);
+        const prog=sec.querySelector('.as-prog');
+        if(prog){prog.textContent=wp.done+'/'+wp.total+(done?' ✓':'');
+          prog.style.color=done?'var(--green)':'var(--amber)';}
+        // update phase sub
+        const ph=document.querySelector(`#${pid} .ph-sub`);
+        if(ph){const wa=ASSIGNMENTS[pid];const waP=waProg(pid);
+          ph.innerHTML=PHASES.find(p=>p.id===pid).sub+` · <span style="color:${waP.done===waP.total?'var(--green)':'var(--amber)'}">📝 ${waP.done}/${waP.total} Auftr.</span>`;
+        }
+        // update hdr
+        document.querySelector('#xp-lbl').textContent=xp()+' / '+maxXp();
+        const xf=document.querySelector('.xp-fill');
+        if(xf) xf.style.width=Math.round(xp()/maxXp()*100)+'%';
+      }
+    });
+  });
+  // Upload button
+  const btn=document.getElementById('btn-upload');
+  if(btn) btn.addEventListener('click',submitSubmission);
+}
+
+// ================================================================
+//  CHECK TOGGLE
+// ================================================================
+let prevPhaseDone={};
+function toggleCheck(id){
+  const was=!!S.checked[id];
+  S.checked[id]=!was;
+  const ph=PHASES.find(p=>p.items.some(i=>i.id===id));
+  const pr=ppct(ph.id);const nowDone=pr.pct===100&&(!ASSIGNMENTS[ph.id]||waDone(ph.id));
+  if(!was){
+    toast(QUIPS[Math.floor(Math.random()*QUIPS.length)],ph.hex);
+    if(nowDone&&!prevPhaseDone[ph.id])
+      setTimeout(()=>toast(`🎉 Phase ${ph.num} – „${ph.title}" komplett!`,ph.hex,true),380);
+    if(doneChecks()===totalChecks()&&doneWA()===totalWA()) setTimeout(()=>confetti(),600);
+  }
+  prevPhaseDone[ph.id]=nowDone;
+  storeSave(); renderAll();
+}
+
+// ================================================================
+//  SUBMIT / UPLOAD
+// ================================================================
+function buildPayload(){
+  return {
+    _type:'ecl-s2-submission',_version:APP_VER,
+    exportedAt:new Date().toISOString(),
+    teamName:S.teamName,
+    progress:{checks:doneChecks(),totalChecks:totalChecks(),assignments:doneWA(),totalAssignments:totalWA(),xp:xp(),maxXp:maxXp()},
+    checked:{...S.checked},
+    assignments:{...S.assignments},
+  };
+}
+
+async function submitSubmission(){
+  const payload=buildPayload();
+  const btn=document.getElementById('btn-upload');
+  if(btn){btn.disabled=true;btn.textContent='⏳ Wird hochgeladen…';}
+
+  if(SUBMIT_URL){
+    try{
+      const res=await fetch(SUBMIT_URL,{
+        method:'POST',
+        headers:{'Content-Type':'application/json','Accept':'application/json'},
+        body:JSON.stringify({
+          teamName:payload.teamName,
+          exportedAt:payload.exportedAt,
+          progressSummary:`${payload.progress.checks}/${payload.progress.totalChecks} Checks · ${payload.progress.assignments}/${payload.progress.totalAssignments} Aufträge · ${payload.progress.xp} XP`,
+          assignments:JSON.stringify(payload.assignments,null,2),
+          fullJson:JSON.stringify(payload),
+        }),
+      });
+      if(res.ok){
+        S.submittedAt=new Date().toISOString(); storeSave();
+        toast('✅ Abgabe erfolgreich hochgeladen!','#34D399',true);
+        renderMain(); return;
+      }
+    }catch(e){}
+    toast('⚠ Upload fehlgeschlagen – Datei wird lokal gespeichert','#F5A623',true);
+  }
+
+  // Fallback: local download
+  const json=JSON.stringify(payload,null,2);
+  const blob=new Blob([json],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  const date=new Date().toISOString().slice(0,10).replace(/-/g,'');
+  a.href=url; a.download=`ECL_S2_${S.teamName.replace(/\s+/g,'_')}_${date}.json`;
+  a.click(); URL.revokeObjectURL(url);
+  S.submittedAt=new Date().toISOString(); storeSave();
+  if(!SUBMIT_URL) toast('⬇ Datei heruntergeladen – bitte einreichen!','#F5A623',true);
+  renderMain();
+}
+
+// ================================================================
+//  TOAST & CONFETTI
+// ================================================================
+function toast(msg,color='#0DD6D6',big=false){
+  const c=document.getElementById('toasts');
+  const el=document.createElement('div');
+  el.className='toast'+(big?' big':'');
+  el.style.borderLeftColor=color; el.textContent=msg;
+  c.appendChild(el); setTimeout(()=>el.remove(),3100);
+}
+function confetti(){
+  const cv=document.getElementById('cc');const ctx=cv.getContext('2d');
+  cv.width=innerWidth; cv.height=innerHeight;
+  const cols=['#6366F1','#0DD6D6','#A78BFA','#FBBF24','#F87171','#F472B6','#34D399','#fff'];
+  const pts=Array.from({length:140},()=>({
+    x:Math.random()*cv.width,y:-12,w:Math.random()*11+4,h:Math.random()*5+3,
+    col:cols[Math.floor(Math.random()*cols.length)],
+    vx:(Math.random()-.5)*5,vy:Math.random()*3+1.5,rot:Math.random()*360,
+    vr:(Math.random()-.5)*9,op:1,
+  }));
+  let f=0;
+  function draw(){
+    ctx.clearRect(0,0,cv.width,cv.height);
+    pts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.04;p.rot+=p.vr;
+      if(f>100)p.op=Math.max(0,p.op-.012);
+      ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot*Math.PI/180);
+      ctx.globalAlpha=p.op;ctx.fillStyle=p.col;
+      ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);ctx.restore();});
+    f++;
+    if(f<220&&pts.some(p=>p.op>0))requestAnimationFrame(draw);
+    else ctx.clearRect(0,0,cv.width,cv.height);
+  }
+  draw();
+  toast('🏆 Session 2 vollständig! Bereit für Odoo!','#FBBF24',true);
+}
+
+function renderAll(){
+  PHASES.forEach(p=>{prevPhaseDone[p.id]=ppct(p.id).pct===100&&(!ASSIGNMENTS[p.id]||waDone(p.id));});
+  renderHdr(); renderMain();
+}
+
+// ================================================================
+//  PROFESSOR MODE  –  multi-submission viewer
+// ================================================================
+let PS = {
+  authed: false,
+  profName: 'Prof. Petzold',
+  submissions: [],   // [{data, feedback:{pid->str}, overall:'', grade:''}]
+  activeIdx: 0,
+};
+
+function initProfMode(){
+  document.getElementById('app-team').style.display='none';
+  document.getElementById('app-prof').style.display='block';
+  try{ if(sessionStorage.getItem('ecl-prof-auth')==='1') PS.authed=true; }catch{}
+  // persist profName
+  try{ const n=sessionStorage.getItem('ecl-prof-name'); if(n) PS.profName=n; }catch{}
+  renderProf();
+}
+function exitProfMode(){ window.location.href=window.location.pathname; }
+
+function renderProf(){
+  const wrap=document.getElementById('prof-content');
+  if(!PS.authed){ wrap.innerHTML=renderProfGate(); attachProfGateEvents(); return; }
+  wrap.innerHTML=PS.submissions.length ? renderProfDashboard() : renderProfUpload();
+  attachProfEvents();
+}
+
+// ── Gate ────────────────────────────────────────────────────────
+function renderProfGate(){
+  return `<div class="prof-gate">
+    <h2>🔐 Dozierende-Ansicht</h2>
+    <p>Einreichungen aller Teams einsehen, kommentieren und benotet herunterladen.</p>
+    <input type="password" id="prof-pw" placeholder="Passwort…" autocomplete="off">
+    <button class="btn btn-primary" id="prof-login-btn" style="width:100%;justify-content:center;margin-top:4px">Einloggen</button>
+    <div class="prof-gate-err" id="pw-err"></div>
+    <div style="margin-top:20px;font-size:11px;color:var(--muted)">
+      Passwort ändern: <code style="color:var(--amber)">PROF_PASSWORD</code> im Quellcode anpassen.
+    </div>
+  </div>`;
+}
+function attachProfGateEvents(){
+  const go=()=>{
+    const pw=document.getElementById('prof-pw')?.value||'';
+    if(pw===PROF_PASSWORD){
+      PS.authed=true; try{sessionStorage.setItem('ecl-prof-auth','1');}catch{}
+      renderProf();
+    } else {
+      const e=document.getElementById('pw-err'); if(e) e.textContent='Falsches Passwort.';
+    }
+  };
+  document.getElementById('prof-login-btn')?.addEventListener('click',go);
+  document.getElementById('prof-pw')?.addEventListener('keydown',e=>{ if(e.key==='Enter') go(); });
+}
+
+// ── Upload (empty state) ────────────────────────────────────────
+function renderProfUpload(){
+  return `<div style="max-width:580px;margin:0 auto">
+    <div style="margin-bottom:28px">
+      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:22px;color:var(--text);margin-bottom:6px">Einreichungen laden</div>
+      <div style="font-size:14px;color:var(--dim);line-height:1.65">
+        Ladet alle JSON-Abgaben der Teams auf einmal. Ihr könnt beliebig viele Dateien gleichzeitig auswählen oder einzeln hinzufügen.
+      </div>
+    </div>
+    <div class="drop-zone" id="dropzone">
+      <div class="drop-zone-icon">📂</div>
+      <div class="drop-zone-title">Abgaben hierher ziehen</div>
+      <div class="drop-zone-sub">oder klicken · mehrere Dateien gleichzeitig wählbar<br><strong style="color:var(--amber)">ECL_S2_[Team]_[Datum].json</strong></div>
+    </div>
+    <input type="file" id="prof-file" accept=".json" multiple style="display:none">
+    <div style="display:flex;align-items:center;gap:10px;margin-top:14px">
+      <div class="prof-name-label" style="white-space:nowrap;flex-shrink:0">Ihr Name:</div>
+      <input class="prof-name-input" id="prof-name-input" placeholder="z.B. Prof. Petzold" value="${esc(PS.profName)}" style="flex:1;margin-bottom:0">
+    </div>
+    <div style="margin-top:12px;font-size:11.5px;color:var(--muted)">Alle Daten bleiben lokal im Browser – nichts wird übertragen.</div>
+  </div>`;
+}
+
+// ── Dashboard (submissions loaded) ─────────────────────────────
+function renderProfDashboard(){
+  const active=PS.submissions[PS.activeIdx];
+
+  // Team list bar
+  const teamBar=PS.submissions.map((s,i)=>{
+    const dw=Object.keys(ASSIGNMENTS).filter(pid=>waDoneFromData(pid,s.data)).length;
+    const tw=Object.keys(ASSIGNMENTS).length;
+    const hasNote=!!(s.overall||s.grade||Object.values(s.feedback).some(v=>v));
+    return `<button class="team-tab ${i===PS.activeIdx?'active':''}" data-idx="${i}">
+      <span>${esc(s.data.teamName||'Team '+(i+1))}</span>
+      <span style="font-size:10px;opacity:.7">${dw}/${tw} WA${hasNote?' · ✍️':''}</span>
+    </button>`;
+  }).join('');
+
+  if(!active) return '';
+  const d=active.data;
+  const dc=d.progress?.checks||0,tc=d.progress?.totalChecks||60;
+  const dw=d.progress?.assignments||0,tw=d.progress?.totalAssignments||5;
+  const exp=new Date(d.exportedAt||Date.now());
+
+  let html=`
+    <!-- toolbar -->
+    <div class="prof-toolbar">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <div class="prof-name-label" style="flex-shrink:0">Ihr Name:</div>
+        <input class="prof-name-input" id="prof-name-input" placeholder="Prof. Petzold"
+          value="${esc(PS.profName)}" style="width:180px;margin-bottom:0">
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-ghost" id="add-more-btn" style="font-size:11px;padding:5px 12px">+ Weitere laden</button>
+        <button class="btn btn-secondary" onclick="exportFeedbackHTML()" style="font-size:11px;padding:5px 12px">🖨️ Bericht</button>
+        <button class="btn btn-primary" onclick="exportFeedback()" style="font-size:11px;padding:5px 14px">⬇ Feedback speichern</button>
+      </div>
+    </div>
+    <input type="file" id="prof-file-more" accept=".json" multiple style="display:none">
+
+    <!-- team tabs -->
+    <div class="team-tabs">${teamBar}</div>
+
+    <!-- stats card -->
+    <div class="rev-header">
+      <div class="rev-team-name">${esc(d.teamName||'Unbekanntes Team')}</div>
+      <div class="rev-meta">Eingereicht: ${exp.toLocaleString('de-DE')}</div>
+      <div class="rev-stats">
+        <div class="rev-stat"><div class="rev-stat-v" style="color:var(--primary)">${dc} / ${tc}</div><div class="rev-stat-l">Checks</div></div>
+        <div class="rev-stat"><div class="rev-stat-v" style="color:var(--amber)">${dw} / ${tw}</div><div class="rev-stat-l">Aufträge</div></div>
+        <div class="rev-stat"><div class="rev-stat-v" style="color:var(--green)">${d.progress?.xp||0} XP</div><div class="rev-stat-l">von ${d.progress?.maxXp||850}</div></div>
+      </div>
+    </div>`;
+
+  // Assignment blocks
+  Object.entries(ASSIGNMENTS).forEach(([pid,wa])=>{
+    const submitted=waDoneFromData(pid,d);
+    html+=`<div class="rev-block">
+      <div class="rev-block-head">
+        <div class="rev-block-icon">${wa.icon}</div>
+        <div class="rev-block-title">${wa.title}</div>
+        ${submitted
+          ?`<span style="color:var(--green);font-size:11px;font-family:'Syne',sans-serif;font-weight:700">✓ Vollständig</span>`
+          :`<span style="color:var(--rose);font-size:11px;font-family:'Syne',sans-serif;font-weight:700">⚠ Unvollständig</span>`}
+      </div>
+      <div class="rev-block-body">
+        ${wa.fields.map(f=>{
+          const val=(d.assignments||{})[f.id]||'';
+          return `<div class="rev-field">
+            <div class="rev-field-label">${esc(f.label)}</div>
+            ${val?`<div class="rev-field-value">${esc(val)}</div>`:`<div class="rev-field-empty">Nicht ausgefüllt</div>`}
+          </div>`;
+        }).join('')}
+        <div class="rev-feedback-label">💬 Feedback zu diesem Abschnitt</div>
+        <textarea class="rev-feedback-input" data-fbpid="${pid}"
+          placeholder="Feedback zu ${wa.title}…">${esc(active.feedback[pid]||'')}</textarea>
+      </div>
+    </div>`;
+  });
+
+  // Overall block
+  html+=`<div class="overall-block">
+    <div class="overall-title">🎓 Gesamtfeedback & Bewertung</div>
+    <div class="overall-row">
+      <div>
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:.09em;color:var(--dim);
+          font-family:'Syne',sans-serif;font-weight:600;margin-bottom:5px">Gesamtfeedback</div>
+        <textarea class="rev-feedback-input" id="overall-fb" rows="5"
+          placeholder="Gesamteindruck, Stärken, wichtigste Entwicklungsfelder…">${esc(active.overall||'')}</textarea>
+      </div>
+      <div>
+        <input class="grade-input" id="grade-inp" placeholder="1.3" value="${esc(active.grade||'')}">
+        <div class="grade-label">Note (optional)</div>
+      </div>
+    </div>
+    <div class="rev-action-row">
+      <button class="btn btn-primary" onclick="exportFeedback()">⬇ Feedback als JSON herunterladen</button>
+      <button class="btn btn-secondary" onclick="exportFeedbackHTML()">🖨️ Druckbaren Bericht erzeugen</button>
+    </div>
+  </div>`;
+
+  return html;
+}
+
+// ── helpers ────────────────────────────────────────────────────
+function waDoneFromData(pid,data){
+  if(!ASSIGNMENTS[pid]) return false;
+  return ASSIGNMENTS[pid].fields.filter(f=>f.req).every(f=>((data.assignments||{})[f.id]||'').trim().length>=5);
+}
+function newSubEntry(data){ return {data, feedback:{}, overall:'', grade:''}; }
+
+// ── file loading ────────────────────────────────────────────────
+function readFiles(files){
+  let loaded=0;
+  Array.from(files).forEach(file=>{
+    const r=new FileReader();
+    r.onload=ev=>{
+      try{
+        const d=JSON.parse(ev.target.result);
+        if(d._type==='ecl-s2-submission'){
+          // avoid duplicates (same team name + exportedAt)
+          const dup=PS.submissions.find(s=>s.data.teamName===d.teamName&&s.data.exportedAt===d.exportedAt);
+          if(!dup){
+            PS.submissions.push(newSubEntry(d));
+            PS.activeIdx=PS.submissions.length-1;
+          }
+          loaded++;
+          if(loaded===files.length){ renderProf(); toast(`✅ ${loaded} Abgabe${loaded>1?'n':''} geladen`,'#34D399',true); }
+        }
+      }catch{}
+    };
+    r.readAsText(file);
+  });
+}
+
+// ── events ─────────────────────────────────────────────────────
+function attachProfEvents(){
+  // drop zone (empty state)
+  const dz=document.getElementById('dropzone');
+  const fi=document.getElementById('prof-file');
+  if(dz){
+    dz.addEventListener('click',()=>fi?.click());
+    dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag-over');});
+    dz.addEventListener('dragleave',()=>dz.classList.remove('drag-over'));
+    dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('drag-over');readFiles(e.dataTransfer.files);});
+  }
+  if(fi) fi.addEventListener('change',e=>readFiles(e.target.files));
+
+  // "add more" button (dashboard)
+  const amb=document.getElementById('add-more-btn');
+  const fim=document.getElementById('prof-file-more');
+  if(amb) amb.addEventListener('click',()=>fim?.click());
+  if(fim) fim.addEventListener('change',e=>readFiles(e.target.files));
+
+  // prof name
+  const pni=document.getElementById('prof-name-input');
+  if(pni) pni.addEventListener('input',()=>{
+    PS.profName=pni.value;
+    try{sessionStorage.setItem('ecl-prof-name',PS.profName);}catch{}
+  });
+
+  // team tabs
+  document.querySelectorAll('.team-tab').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      PS.activeIdx=parseInt(btn.dataset.idx)||0;
+      renderProf();
+      document.getElementById('prof-content').scrollIntoView({behavior:'smooth',block:'start'});
+    });
+  });
+
+  // per-section feedback
+  document.querySelectorAll('.rev-feedback-input[data-fbpid]').forEach(el=>{
+    el.addEventListener('input',()=>{
+      if(PS.submissions[PS.activeIdx]) PS.submissions[PS.activeIdx].feedback[el.dataset.fbpid]=el.value;
+    });
+  });
+
+  // overall + grade
+  const ofb=document.getElementById('overall-fb');
+  if(ofb) ofb.addEventListener('input',()=>{ if(PS.submissions[PS.activeIdx]) PS.submissions[PS.activeIdx].overall=ofb.value; });
+  const gi=document.getElementById('grade-inp');
+  if(gi) gi.addEventListener('input',()=>{ if(PS.submissions[PS.activeIdx]) PS.submissions[PS.activeIdx].grade=gi.value; });
+}
+
+// ── exports ────────────────────────────────────────────────────
+function exportFeedback(){
+  const sub=PS.submissions[PS.activeIdx]; if(!sub) return;
+  const d=sub.data;
+  const payload={
+    _type:'ecl-s2-feedback',_version:APP_VER,
+    reviewedAt:new Date().toISOString(),
+    profName:PS.profName||'Prof. Petzold',
+    teamName:d.teamName,
+    feedback:{...sub.feedback},
+    overallFeedback:sub.overall,
+    grade:sub.grade,
+  };
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download=`ECL_S2_${(d.teamName||'Team').replace(/\s+/g,'_')}_FEEDBACK.json`;
+  a.click(); URL.revokeObjectURL(url);
+  toast(`✅ Feedback für „${d.teamName}" gespeichert`,'#34D399',true);
+}
+window.exportFeedback=exportFeedback;
+
+function exportFeedbackHTML(){
+  const sub=PS.submissions[PS.activeIdx]; if(!sub) return;
+  const d=sub.data;
+  let rows='';
+  Object.entries(ASSIGNMENTS).forEach(([pid,wa])=>{
+    const fb=sub.feedback[pid]||'';
+    const fields=wa.fields.map(f=>{
+      const val=(d.assignments||{})[f.id]||'(nicht ausgefüllt)';
+      return `<div style="margin-bottom:14px">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#555;letter-spacing:.08em;margin-bottom:4px">${f.label}</div>
+        <div style="background:#f5f5f5;border-radius:6px;padding:10px 14px;font-size:13.5px;white-space:pre-wrap;line-height:1.6">${val}</div>
+      </div>`;
+    }).join('');
+    rows+=`<div style="margin-bottom:28px;page-break-inside:avoid">
+      <div style="background:#1a1a2e;color:#fff;padding:12px 18px;border-radius:8px 8px 0 0;font-weight:700;font-size:14px">${wa.icon} ${wa.title}</div>
+      <div style="border:1px solid #ddd;border-top:none;border-radius:0 0 8px 8px;padding:16px 18px">
+        ${fields}
+        ${fb?`<div style="background:#f0faf4;border:1px solid #a7e6c2;border-radius:6px;padding:12px 14px;margin-top:12px">
+          <div style="font-size:10px;font-weight:700;color:#1a7a45;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">💬 ${PS.profName||'Dozent:in'}</div>
+          <div style="font-size:13.5px;line-height:1.65;white-space:pre-wrap">${fb}</div>
+        </div>`:''}
+      </div>
+    </div>`;
+  });
+  const html=`<!DOCTYPE html><html lang="de"><head><meta charset="UTF-8">
+  <title>ECL S2 – ${d.teamName}</title>
+  <style>body{font-family:'Helvetica Neue',Arial,sans-serif;max-width:780px;margin:40px auto;padding:0 20px;color:#111}
+  h1{font-size:22px;margin-bottom:4px}h2{font-size:15px;color:#555;font-weight:400;margin:0 0 20px}
+  .meta{background:#f0f0f0;border-radius:8px;padding:12px 16px;margin-bottom:24px;font-size:13px}
+  .overall{background:#fffbf0;border:1px solid #f0d080;border-radius:8px;padding:18px;margin-top:24px}
+  @media print{button{display:none}}</style></head><body>
+  <h1>📋 ECL Session 2 · Feedback</h1>
+  <h2>Team: ${d.teamName}</h2>
+  <div class="meta">
+    <strong>Eingereicht:</strong> ${new Date(d.exportedAt||Date.now()).toLocaleString('de-DE')} &nbsp;·&nbsp;
+    <strong>Bewertet:</strong> ${new Date().toLocaleDateString('de-DE')} &nbsp;·&nbsp;
+    <strong>Bewertet von:</strong> ${PS.profName||'Dozent:in'}
+    &nbsp;·&nbsp; <strong>Fortschritt:</strong> ${d.progress?.checks||0}/${d.progress?.totalChecks||60} Checks · ${d.progress?.assignments||0}/${d.progress?.totalAssignments||5} Aufträge
+    ${sub.grade?`&nbsp;·&nbsp; <strong style="font-size:15px">Note: ${sub.grade}</strong>`:''}
+  </div>
+  ${rows}
+  ${sub.overall?`<div class="overall">
+    <div style="font-weight:700;margin-bottom:8px;color:#8a6000">🎓 Gesamtfeedback</div>
+    <div style="font-size:14px;line-height:1.7;white-space:pre-wrap">${sub.overall}</div>
+    ${sub.grade?`<div style="margin-top:16px;font-weight:700;font-size:18px">Note: ${sub.grade}</div>`:''}
+  </div>`:''}
+  </body></html>`;
+  const blob=new Blob([html],{type:'text/html'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download=`ECL_S2_${(d.teamName||'Team').replace(/\s+/g,'_')}_Feedback.html`;
+  a.click(); URL.revokeObjectURL(url);
+  toast('🖨️ Druckbarer Bericht erstellt','#34D399',true);
+}
+window.exportFeedbackHTML=exportFeedbackHTML;
+
+// ================================================================
+//  INIT
+// ================================================================
+(function init(){
+  storeLoad();
+  PHASES.forEach(p=>{prevPhaseDone[p.id]=ppct(p.id).pct===100&&(!ASSIGNMENTS[p.id]||waDone(p.id));});
+
+  // Detect professor mode
+  if(window.location.search.includes('prof')){
+    initProfMode();
+  } else {
+    renderAll();
+  }
+})();
+</script>
+</body>
+</html>
