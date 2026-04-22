@@ -39,8 +39,8 @@ body::after{content:'';position:fixed;top:25%;left:50%;
   background:rgba(6,12,24,0.9);backdrop-filter:blur(24px) saturate(1.4);
   border-bottom:1px solid var(--border)}
 .header-row{display:flex;align-items:center;gap:12px;padding:10px 24px;flex-wrap:wrap}
-.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:10.5px;
-  letter-spacing:.16em;color:var(--primary);text-transform:uppercase;white-space:nowrap;flex-shrink:0}
+.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:9px;
+  letter-spacing:.12em;color:var(--primary);text-transform:uppercase;white-space:nowrap;flex-shrink:0}
 .logo span{color:var(--muted)}
 .session-label{font-family:'Syne',sans-serif;font-weight:700;font-size:13.5px;
   color:var(--text);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -163,7 +163,7 @@ body::after{content:'';position:fixed;top:25%;left:50%;
 @keyframes cbPop{0%,100%{transform:scale(1)}40%{transform:scale(1.35)}70%{transform:scale(.9)}}
 .cb.pop{animation:cbPop .3s ease}
 .ci-txt{font-size:14px;color:var(--text);transition:all .28s;line-height:1.55;flex:1}
-.ci.done .ci-txt{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--dim)}
+.ci.done .ci-txt{color:var(--dim);background:linear-gradient(90deg,color-mix(in srgb,var(--pc) 12%,transparent),transparent 92%);border-radius:4px;padding:1px 5px;margin-left:-5px}
 .tip-btn{background:none;border:none;cursor:pointer;color:var(--muted);font-size:12px;
   padding:2px 4px;border-radius:4px;transition:all .18s;flex-shrink:0;margin-top:3px;line-height:1}
 .tip-btn:hover{color:var(--primary);background:rgba(13,214,214,.1)}
@@ -387,11 +387,40 @@ body::after{content:'';position:fixed;top:25%;left:50%;
   background:var(--card);border:1px solid var(--border);border-radius:var(--r);
   padding:14px 18px}
 
-/* print */
+/* print overlay – hidden on screen, shown only when printing */
+#print-overlay{display:none}
 @media print{
-  body{background:#fff;color:#111}
-  body::before,body::after,#toasts,#cc{display:none}
-  .header,.phase-nav{display:none}
+  body>*{display:none!important}
+  #print-overlay{display:block!important;font-family:'Helvetica Neue',Arial,sans-serif;
+    color:#111;font-size:13px;line-height:1.65;padding:32px 40px}
+  .po-logo{font-size:8px;letter-spacing:.18em;text-transform:uppercase;
+    color:#0a8a8a;font-weight:700;margin-bottom:4px}
+  .po-title{font-size:21px;font-weight:800;color:#060C18;margin-bottom:2px}
+  .po-sub{font-size:11.5px;color:#647EA0;margin-bottom:6px}
+  .po-meta{font-size:11px;color:#647EA0;margin-bottom:20px;
+    padding-bottom:14px;border-bottom:2.5px solid #0DD6D6}
+  .po-chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:22px}
+  .po-chip{padding:4px 11px;border-radius:20px;font-size:10.5px;
+    font-weight:700;border:1px solid #b0e8e8;background:#e6fafa;color:#0a8a8a}
+  .po-chip.amber{border-color:#f5d78a;background:#fff8e6;color:#a06000}
+  .po-chip.green{border-color:#90ddb8;background:#e8faf2;color:#1a6b45}
+  .po-section{margin-bottom:18px;border:1px solid #e4eaf2;
+    border-radius:8px;overflow:hidden;page-break-inside:avoid}
+  .po-sec-head{display:flex;align-items:center;gap:9px;padding:9px 15px;
+    background:#f7f9fc;border-bottom:1px solid #e4eaf2}
+  .po-sec-icon{font-size:15px}
+  .po-sec-title{font-weight:700;font-size:12.5px;color:#060C18;flex:1}
+  .po-sec-status{font-size:9.5px;font-weight:700;padding:2px 7px;border-radius:20px}
+  .po-sec-status.ok{background:#e8faf2;color:#1a6b45}
+  .po-sec-status.warn{background:#fff0e8;color:#a04000}
+  .po-sec-body{padding:12px 15px;display:flex;flex-direction:column;gap:10px}
+  .po-field-label{font-size:8.5px;text-transform:uppercase;letter-spacing:.1em;
+    color:#0a8a8a;font-weight:700;margin-bottom:4px}
+  .po-field-value{font-size:12.5px;color:#111;line-height:1.6;
+    background:#f7f9fc;border-radius:5px;padding:7px 11px;white-space:pre-wrap}
+  .po-field-empty{font-size:12px;color:#aaa;font-style:italic}
+  .po-footer{margin-top:26px;padding-top:12px;border-top:1px solid #e4eaf2;
+    display:flex;justify-content:space-between;font-size:9.5px;color:#aaa}
 }
 @media(max-width:700px){
   .stats{grid-template-columns:1fr 1fr}
@@ -417,16 +446,15 @@ body::after{content:'';position:fixed;top:25%;left:50%;
   <div class="wrap" id="main"></div>
   <div class="foot">
     <div class="foot-card">
-      <div class="foot-ttl">🎓 Key Learnings · Session 2</div>
+      <div class="foot-ttl">🎓 Key Learnings</div>
       <div class="learn-grid">
         <div class="learn-item"><div class="learn-n">01</div><div>KI ist Arbeitsmedium, kein Ersatz fürs Denken – sinnvoll, wenn Teams Steuerung und Qualitätsprüfung übernehmen.</div></div>
         <div class="learn-item"><div class="learn-n">02</div><div>Analyse kommt vor Lösung: Produktideen entstehen aus sauberer Problemklärung, Zielgruppenverständnis und Marktbezug.</div></div>
         <div class="learn-item"><div class="learn-n">03</div><div>Produktklarheit ist Qualitätskriterium: Name, Nutzen, Zielgruppe, Preislogik und Einheit müssen klar beschrieben sein.</div></div>
         <div class="learn-item"><div class="learn-n">04</div><div>Operationalisierung prüft Unternehmertum: Beim Übergang zu Odoo zeigt sich, ob eine Idee strukturell tragfähig ist.</div></div>
       </div>
-      <div class="odoo-note">
-        <div class="odoo-chip">→ Session 3</div>
-        Euer Produktprofil wird in der nächsten Session mit Verena in Odoo als Systemobjekt angelegt. Je klarer eure Angaben jetzt, desto leichter der Übergang.
+      <div class="odoo-note" style="justify-content:center;border-top:1px solid var(--border);margin-top:18px;padding-top:16px">
+        <span style="font-size:11px;color:var(--muted)">Designed by Prof. Thomas Petzold Ph.D. and Claude · 2026</span>
       </div>
     </div>
   </div>
@@ -447,6 +475,7 @@ body::after{content:'';position:fixed;top:25%;left:50%;
 
 <canvas id="cc"></canvas>
 <div id="toasts"></div>
+<div id="print-overlay"></div>
 
 <script>
 'use strict';
@@ -552,7 +581,7 @@ const ASSIGNMENTS = {
   },
   p4:{
     icon:'🛠️',title:'Produktprofil – alle Pflichtfelder',
-    desc:'Definiert euer Produkt vollständig. Diese Angaben fließen direkt in die Odoo-Anlage in Session 3 ein.',
+    desc:'Definiert euer Produkt vollständig. Diese Angaben bilden die Grundlage für die spätere Systemanlage.',
     fields:[
       {id:'p4_name',label:'Produktname',hint:'Klar, wiedererkennbar, anschlussfähig',type:'input',req:true},
       {id:'p4_desc',label:'Kurzbeschreibung',hint:'Was ist das Produkt, welches Problem löst es, was ist der Kernnutzen? (1–2 Sätze)',type:'textarea',rows:3,req:true},
@@ -601,7 +630,7 @@ const QUIPS=['Nice! Weiter so 🔥','Stark! Das zählt.','Yes! Schritt für Schr
 // ================================================================
 //  STATE
 // ================================================================
-let S = { teamName:'Euer Team', checked:{}, col:{}, assignments:{}, submittedAt:null };
+let S = { teamName:'Euer Team', checked:{}, col:{}, assignments:{}, submittedAt:null, feedback:null };
 
 function storeLoad(){
   try{const d=localStorage.getItem(STORE_KEY);if(d) S={...S,...JSON.parse(d)};}catch{}
@@ -662,8 +691,8 @@ function renderHdr(){
   const x=xp(),mx=maxXp(),lv=level(),p=Math.round(x/mx*100);
   document.getElementById('hdr').innerHTML=`
     <div class="header-row">
-      <div class="logo">ECL <span>·</span> Petzold</div>
-      <div class="session-label">Session 2 <small>· Von der Idee zum Produkt</small></div>
+      <div class="logo">Entrepreneurship Challenge Lab</div>
+      <div class="session-label">Ideation & Product Building <small>· Session 2</small></div>
       <div style="flex:1"></div>
       <div class="team-wrap">
         <label>Team</label>
@@ -677,6 +706,7 @@ function renderHdr(){
         <div class="lvl-badge">${lv.icon} ${lv.label}</div>
       </div>
       ${S.submittedAt?`<button class="hdr-btn green" id="hdr-submit">✓ Erneut herunterladen</button>`:`<button class="hdr-btn accent" id="hdr-submit">⬇ Abgabe herunterladen</button>`}
+      <button class="hdr-btn" id="hdr-load-fb">📬 Feedback laden</button>
       <button class="hdr-btn" id="rst">Reset</button>
     </div>
     <div class="phase-nav">
@@ -700,6 +730,7 @@ function renderHdr(){
     }
   });
   document.getElementById('hdr-submit').addEventListener('click', submitSubmission);
+  document.getElementById('hdr-load-fb').addEventListener('click', loadFeedbackFile);
 }
 
 // ================================================================
@@ -708,6 +739,18 @@ function renderHdr(){
 function renderMain(){
   const dc=doneChecks(),tc=totalChecks(),dw=doneWA(),tw=totalWA();
   let html='';
+
+  // Feedback banner
+  if(S.feedback){
+    html+=`<div class="fb-banner">
+      <div class="fb-banner-icon">📬</div>
+      <div>
+        <strong>Feedback von ${esc(S.feedback.profName||'Prof. Petzold')}</strong> erhalten
+        ${S.feedback.grade?` · Note: <strong style="color:var(--amber)">${esc(S.feedback.grade)}</strong>`:''}
+        <br><span style="font-size:12px;color:var(--dim)">Eingegangen: ${new Date(S.feedback.reviewedAt||Date.now()).toLocaleDateString('de-DE')}</span>
+      </div>
+    </div>`;
+  }
 
   // Stats
   html+=`<div class="stats">
@@ -769,6 +812,7 @@ function renderMain(){
 function renderAssignment(pid, wa){
   const col=!!S.col['wa_'+pid];
   const wp=waProg(pid);const done=waDone(pid);
+  const fb=S.feedback?.feedback?.[pid];
 
   let fields=wa.fields.map(f=>{
     const val=esc(S.assignments[f.id]||'');
@@ -787,6 +831,16 @@ function renderAssignment(pid, wa){
       <div class="as-char ${ok?'ok':''}">${len} Zeichen${ok?' ✓':' (min. 5)'}</div>
     </div>`;
   }).join('');
+
+  if(fb){
+    fields+=`<div class="pf-box">
+      <div class="pf-icon">💬</div>
+      <div class="pf-content">
+        <div class="pf-label">Feedback von ${esc(S.feedback.profName||'Dozent:in')}</div>
+        <div class="pf-text">${esc(fb)}</div>
+      </div>
+    </div>`;
+  }
 
   return `<div class="as-section ${done?'wa-complete':''} ${col?'collapsed':''}" data-wapid="${pid}">
     <div class="as-head">
@@ -807,15 +861,14 @@ function renderAssignment(pid, wa){
 // ================================================================
 function renderSubmitSection(){
   const dc=doneChecks(),tc=totalChecks(),dw=doneWA(),tw=totalWA();
-  const allWaDone=dw===tw;const allChecksDone=dc===tc;
+  const allWaDone=dw===tw;
   const readyColor=allWaDone?'var(--green)':'var(--amber)';
-  const endpoint=SUBMIT_URL?`<div style="font-size:12px;color:var(--green);margin-top:8px">✓ Direkt-Upload aktiv (Formspree)</div>`
-    :`<div style="font-size:11.5px;color:var(--muted);margin-top:8px">Kein Upload-Endpoint konfiguriert → Datei wird lokal heruntergeladen und muss manuell eingereicht werden.</div>`;
+  const fb=S.feedback;
   return `<div class="submit-area" id="submit-section">
-    <div class="submit-title">📤 Abgabe hochladen</div>
+    <div class="submit-title">📋 Zusammenfassung herunterladen</div>
     <div class="submit-sub">
-      Wenn ihr alle Arbeitsaufträge ausgefüllt habt, ladet eure Abgabe hoch.
-      Die Datei enthält alle dokumentierten Arbeitsaufträge, euren Fortschritt und die Teamangaben.
+      Wenn ihr alle Arbeitsaufträge ausgefüllt habt, ladet eure Zusammenfassung herunter und schickt sie dem Dozenten.
+      Das Dokument enthält alle dokumentierten Arbeitsaufträge und euren Fortschritt.
     </div>
     <div class="submit-grid">
       <div class="sg-item">
@@ -828,17 +881,43 @@ function renderSubmitSection(){
       </div>
     </div>
     <div class="submit-btns">
-      <button class="btn btn-primary" id="btn-upload" ${dw===0?'style="opacity:.6"':''}>
-      ${SUBMIT_URL?'📤 Abgabe hochladen':'⬇ Abgabe herunterladen'}
-      </button>
+      <button class="btn btn-primary" id="btn-upload">⬇ Zusammenfassung herunterladen</button>
+      <button class="btn btn-secondary" id="btn-load-fb3">📬 Feedback laden</button>
     </div>
-    ${endpoint}
     ${S.submittedAt?`<div class="submit-note" style="margin-top:12px">
-      ✓ Zuletzt eingereicht: ${new Date(S.submittedAt).toLocaleString('de-DE')}
-      ${!SUBMIT_URL?' · <em>Bitte die Datei per Mail oder Kursplattform einreichen.</em>':''}
+      ✓ Zuletzt heruntergeladen: ${new Date(S.submittedAt).toLocaleString('de-DE')} · <em>Bitte das Dokument per Mail einreichen.</em>
     </div>`:''}
-
+    ${fb?`<div class="pf-box" style="margin-top:16px">
+      <div class="pf-icon">🎓</div>
+      <div class="pf-content">
+        <div class="pf-label">Gesamtfeedback von ${esc(fb.profName||'Prof. Petzold')}</div>
+        <div class="pf-text">${esc(fb.overallFeedback||'(kein Gesamtfeedback)')}</div>
+        ${fb.grade?`<div style="margin-top:8px;font-family:'Syne',sans-serif;font-weight:700;color:var(--amber)">Note: ${esc(fb.grade)}</div>`:''}
+      </div>
+    </div>`:''}
   </div>`;
+}
+
+function loadFeedbackFile(){
+  const inp=document.createElement('input');
+  inp.type='file'; inp.accept='.json';
+  inp.onchange=e=>{
+    const f=e.target.files[0]; if(!f) return;
+    const r=new FileReader();
+    r.onload=ev=>{
+      try{
+        const d=JSON.parse(ev.target.result);
+        if(d._type==='ecl-s2-feedback'){
+          S.feedback=d; storeSave(); renderAll();
+          toast('📬 Feedback geladen!','#34D399',true);
+        } else {
+          toast('❌ Keine gültige Feedback-Datei','#F87171',true);
+        }
+      }catch{ toast('❌ Fehler beim Laden','#F87171',true); }
+    };
+    r.readAsText(f);
+  };
+  inp.click();
 }
 
 // ================================================================
@@ -903,9 +982,11 @@ function attachEvents(){
       }
     });
   });
-  // Upload button
+  // Upload + feedback buttons
   const btn=document.getElementById('btn-upload');
   if(btn) btn.addEventListener('click',submitSubmission);
+  const lf1=document.getElementById('btn-load-fb3');
+  if(lf1) lf1.addEventListener('click',loadFeedbackFile);
 }
 
 // ================================================================
@@ -928,58 +1009,59 @@ function toggleCheck(id){
 }
 
 // ================================================================
-//  SUBMIT / UPLOAD
+//  SUBMIT – simple JSON download (works everywhere)
 // ================================================================
-function buildPayload(){
-  return {
-    _type:'ecl-s2-submission',_version:APP_VER,
-    exportedAt:new Date().toISOString(),
-    teamName:S.teamName,
-    progress:{checks:doneChecks(),totalChecks:totalChecks(),assignments:doneWA(),totalAssignments:totalWA(),xp:xp(),maxXp:maxXp()},
-    checked:{...S.checked},
-    assignments:{...S.assignments},
+function submitSubmission(){
+  const payload={
+    exportedAt: new Date().toISOString(),
+    teamName: S.teamName,
+    progress:{
+      checks: doneChecks(), totalChecks: totalChecks(),
+      assignments: doneWA(), totalAssignments: totalWA(),
+    },
+    arbeitsauftraege: {},
   };
-}
 
-async function submitSubmission(){
-  const payload=buildPayload();
-  const btn=document.getElementById('btn-upload');
-  if(btn){btn.disabled=true;btn.textContent='⏳ Wird hochgeladen…';}
+  // Build readable labels
+  const LABELS={
+    p2_idea1:'Produktidee 1',p2_idea2:'Produktidee 2',p2_idea3:'Produktidee 3',
+    p2_focus:'Fokusidee und Teambegründung',
+    p3_market:'Marktbefund',p3_competition:'Wettbewerbsbefund',
+    p3_customers:'Kundenbefund',p3_transfer:'Transfer – Bestätigen / Verwerfen / Schärfen',
+    p4_name:'Produktname',p4_desc:'Kurzbeschreibung',p4_target:'Zielkund:in',
+    p4_price:'Preis / Preislogik',p4_unit:'Einheit',
+    p4_cproblem:'Problem aus Kundensicht',p4_motivation:'Kaufmotivation',
+    p4_value:'Wahrgenommener Mehrwert',
+    p5_problem:'Problem',p5_target:'Zielgruppe',p5_product:'Produkt',
+    p6_feedback:'Peer-Feedback',
+    p6_odoo_name:'Odoo Produktname',p6_odoo_desc:'Odoo Kurzbeschreibung',
+    p6_odoo_price:'Odoo Preis',p6_odoo_unit:'Odoo Einheit',p6_odoo_target:'Odoo Zielkund:in',
+  };
 
-  if(SUBMIT_URL){
-    try{
-      const res=await fetch(SUBMIT_URL,{
-        method:'POST',
-        headers:{'Content-Type':'application/json','Accept':'application/json'},
-        body:JSON.stringify({
-          teamName:payload.teamName,
-          exportedAt:payload.exportedAt,
-          progressSummary:`${payload.progress.checks}/${payload.progress.totalChecks} Checks · ${payload.progress.assignments}/${payload.progress.totalAssignments} Aufträge · ${payload.progress.xp} XP`,
-          assignments:JSON.stringify(payload.assignments,null,2),
-          fullJson:JSON.stringify(payload),
-        }),
-      });
-      if(res.ok){
-        S.submittedAt=new Date().toISOString(); storeSave();
-        toast('✅ Abgabe erfolgreich hochgeladen!','#34D399',true);
-        renderMain(); return;
-      }
-    }catch(e){}
-    toast('⚠ Upload fehlgeschlagen – Datei wird lokal gespeichert','#F5A623',true);
-  }
+  Object.entries(ASSIGNMENTS).forEach(([pid,wa])=>{
+    const section={};
+    wa.fields.forEach(f=>{
+      section[LABELS[f.id]||f.label] = (S.assignments[f.id]||'').trim()||'(nicht ausgefüllt)';
+    });
+    payload.arbeitsauftraege[wa.title]=section;
+  });
 
-  // Fallback: local download
   const json=JSON.stringify(payload,null,2);
   const blob=new Blob([json],{type:'application/json'});
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a');
   const date=new Date().toISOString().slice(0,10).replace(/-/g,'');
-  a.href=url; a.download=`ECL_S2_${S.teamName.replace(/\s+/g,'_')}_${date}.json`;
-  a.click(); URL.revokeObjectURL(url);
-  S.submittedAt=new Date().toISOString(); storeSave();
-  if(!SUBMIT_URL) toast('⬇ Datei heruntergeladen – bitte einreichen!','#F5A623',true);
-  renderMain();
+  a.href=url;
+  a.download=`ECL_S2_${(S.teamName||'Team').replace(/\s+/g,'_')}_${date}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url),5000);
+
+  S.submittedAt=new Date().toISOString(); storeSave(); renderMain();
+  toast('✅ Zusammenfassung heruntergeladen – bitte einreichen!','#34D399',true);
 }
+
 
 // ================================================================
 //  TOAST & CONFETTI
